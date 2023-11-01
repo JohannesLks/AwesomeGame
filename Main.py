@@ -45,7 +45,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         # Inside the Player class __init__ method
-        self.image = pygame.transform.scale(player_img, (100, 60))  # Resize to appropriate dimensions
+        self.image = pygame.transform.scale(player_img, (200, 185))  # Resize to appropriate dimensions
         self.rect = self.image.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
         self.speed = PLAYER_SPEED
         self.health = 100
