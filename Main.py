@@ -3,17 +3,14 @@
 # Import necessary modules
 import pygame
 import random
+from settings import *
+from sprites import *
+
+
+import sys, os
 
 # Initialize the pygame
 pygame.init()
-
-# Constants for the game
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 563
-PLAYER_SPEED = 5
-ENEMY_SPAWN_RATE = 60  # Lower number means more frequent spawns
-POWER_UP_RATE = 500    # Lower number means more frequent power-ups
-SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -21,16 +18,10 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-# Load game assets
-player_img = pygame.image.load('mr_krabs.png')
-enemy_img = pygame.image.load('blowfish.png')
-burger_img = pygame.image.load('burger.png')
-background_img = pygame.image.load('bikini_bottom.png')
-
 # Background music and sound effects
-pygame.mixer.music.load('background_music.mp3')
+pygame.mixer.music.load('media/background_music.mp3')
 pygame.mixer.music.play(-1)  # Play the music indefinitely
-money_sound = pygame.mixer.Sound('money_sound.mp3')
+money_sound = pygame.mixer.Sound('media/money_sound.mp3')
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -39,98 +30,6 @@ pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
 # Use pygame's event system to create a custom event for ammo regeneration
 AMMO_REGEN_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(AMMO_REGEN_EVENT, 2000)  # Set a timer to trigger every 5 seconds
-
-# Player class
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        # Inside the Player class __init__ method
-        self.image = pygame.transform.scale(player_img, (200, 185))  # Resize to appropriate dimensions
-        self.rect = self.image.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
-        self.speed = PLAYER_SPEED
-        self.health = 100
-        self.score = 0
-        self.ammo = 10  # Player starts with 10 ammunition
-
-    def update(self, keys):
-        if keys[pygame.K_a]:
-            self.rect.x -= self.speed
-        if keys[pygame.K_d]:
-            self.rect.x += self.speed
-        if keys is None:
-            keys = pygame.key.get_pressed()
-        # Keep the player on the screen
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > SCREEN_WIDTH:
-            self.rect.right = SCREEN_WIDTH
-
-
-# Enemy class
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = enemy_img
-        self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
-        
-        # Set a constant speed for all enemies
-        self.speed = 1
-        
-        # Decide the starting side (left or right)
-        if random.choice([True, False]):
-            self.rect.x = -self.rect.width  # Start from the left side
-            self.direction = 1  # Move to the right
-        else:
-            self.rect.x = SCREEN_WIDTH  # Start from the right side
-            self.direction = -1  # Move to the left
-
-        # Randomly choose the vertical position
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
-
-    def update(self):
-        # Move horizontally at a constant speed
-        self.rect.x += self.speed * self.direction
-        
-        # Remove the sprite when it moves off the screen
-        if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
-            self.kill()  # Remove the enemy
-            return True  # Indicate that an enemy has reached the edge
-        return False
-
-
-
-
-# Make sure the burger's update method moves it upwards
-class Burger(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = burger_img
-        self.rect = self.image.get_rect(center=(x, y))
-        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
-    def update(self):
-        # Move the burger upwards
-        self.rect.y -= 5
-        # Remove the burger if it moves off the top of the screen
-        if self.rect.bottom < 0:
-            self.kill()
-
-# Power-up class
-class PowerUp(pygame.sprite.Sprite):
-    def __init__(self, type, x, y):
-        super().__init__()
-        self.type = type
-        if self.type == 'score_boost':
-            self.image = pygame.image.load('boost.png')
-        elif self.type == 'speed_boost':
-            self.image = pygame.image.load('boost.png')
-        elif self.type == 'health_boost':
-            self.image = pygame.image.load('boost.png')
-        self.rect = self.image.get_rect(center=(x, y))
-
-    def update(self):
-        # Power-ups just float in the air, they don't move
-        pass
 
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, player_rect):
@@ -200,29 +99,35 @@ try:
         power_ups.update()
 
         # Collision detection
-        for burger in burgers:
-            hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
+        # Collision detection with enemies
+        for burger in list(burgers):  # Iterate over a copy of the burgers
+            hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
             for enemy in hit_enemies:
-                enemy.kill()
-                burger.kill()
-                player.score += 10
-                money_sound.play()
+                burger.kill()  # Remove the burger
+                player.score += 10  # Increase the score
+                money_sound.play()  # Play the money sound effect
+
+        # Collision detection with power-ups
+        for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
+            hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
+            for power_up in hit_power_ups:
+                if power_up.type == 'score_boost':
+                    player.score *= SCORE_MULTIPLIER  # Apply score boost
+                elif power_up.type == 'speed_boost':
+                    player.speed += 2  # Apply speed boost
+                elif power_up.type == 'health_boost':
+                    player.health += 20  # Apply health boost
+
 
         for event in pygame.event.get():
             if event.type == AMMO_REGEN_EVENT:
                 regenerate_ammo(player)
-        
+    
 
-        # Check for power-up collection
-        for power_up in pygame.sprite.spritecollide(player, power_ups, True):
-            if power_up.type == 'score_boost':
-                player.score *= SCORE_MULTIPLIER
-            elif power_up.type == 'speed_boost':
-                player.speed += 2  # Increase speed temporarily
-            elif power_up.type == 'health_boost':
-                player.health += 20  # Increase health
+        # Spawn enemies and power-ups
+        spawn_enemies(enemies, player.rect)
+        spawn_power_ups(power_ups)
 
-        # Drawing everything on the screen
         # Drawing everything on the screen
         screen.blit(background_img, (0, 0))
         players.draw(screen)
@@ -244,16 +149,12 @@ try:
         ammo_text = font.render(f'Ammo: {player.ammo}', True, GREEN)
         screen.blit(ammo_text, (10, 80))
 
-
-        # Spawn enemies and power-ups
-        # Inside the main game loop
-        spawn_enemies(enemies, player.rect)
-        spawn_power_ups(power_ups)
-
         # Update the display
         pygame.display.flip()
 except Exception as e:
-    print(e)
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(exc_type, fname, exc_tb.tb_lineno)
     running = False
 
 # Quit the game
