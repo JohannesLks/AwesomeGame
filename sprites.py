@@ -6,13 +6,6 @@ from abc import ABC, abstractmethod
 
 
 
-# Load game assets
-player_img = pygame.image.load('media/mr_krabs.png')
-enemy_img = pygame.image.load('media/blowfish.png')
-burger_img = pygame.image.load('media/burger.png')
-background_img = pygame.image.load('media/bikini_bottom.png')
-
-
 
 # Player class
 class Player(pygame.sprite.Sprite):
