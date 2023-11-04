@@ -84,14 +84,20 @@ class Burger(pygame.sprite.Sprite):
 
 # Power-up class
 class PowerUp(pygame.sprite.Sprite):
-    def __init__(self, type, x, y):
+    def __init__(self, power_up_type, x, y):
         super().__init__()
-        self.type = type
-        self.image = pygame.image.load('media/boost.png')  # Placeholder for actual power-up image
+        attributes = POWER_UPS_ATTRIBUTES[power_up_type]
+        self.type = power_up_type
+        self.image = pygame.image.load(attributes['image'])
         self.rect = self.image.get_rect(center=(x, y))
+        self.effect = attributes['effect']
+        self.half_width = self.image.get_width() // 2  # Half-width of the power-up image
         self.spawn_time = pygame.time.get_ticks()
+
+        
     def update(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.spawn_time > 3000:  # 3000 milliseconds = 3 seconds
+        if current_time - self.spawn_time > 4000:  # 4000 milliseconds = 4 seconds
             self.kill()  # Remove the power-up after 3 seconds
+    
 

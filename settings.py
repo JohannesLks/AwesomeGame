@@ -4,7 +4,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
 ENEMY_SPAWN_RATE = 60  # Lower number means more frequent spawns
-POWER_UP_RATE = 500    # Lower number means more frequent power-ups
+POWER_UP_RATE = 60    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 
 
@@ -29,6 +29,25 @@ DARK_BLUE = (0, 0, 139)  # An example color for the active state
 pygame.font.init()  # Only needed if not already called
 font = pygame.font.SysFont('arial', 32)  # You can replace 'arial' with any other font
 
+
+# This dictionary maps power-up types to their images and attributes
+POWER_UPS_ATTRIBUTES = {
+    'score_boost': {
+        'image': 'media/boost.png',
+        'effect': lambda player: setattr(player, 'score', player.score + 50)
+    },
+    'speed_boost': {
+        'image': 'media/boost.png',
+        'effect': lambda player: setattr(player, 'speed', player.speed + 2)
+    },
+    'health_boost': {
+        'image': 'media/boost.png',
+        'effect': lambda player: setattr(player, 'health', player.health + 20)
+    },
+    # Add more power-up types here as needed
+}
+
+
 # Load game assets
 player_img = pygame.image.load('media/mr_krabs.png')
 enemy_img = pygame.image.load('media/blowfish.png')
@@ -40,4 +59,4 @@ start_button_hover_img = pygame.image.load('media/start_button_hover.png')
 quit_button_img = pygame.image.load('media/quit_button.png')
 quit_button_hover_img = pygame.image.load('media/quit_button_hover.png')
 input_bg_image = pygame.image.load('media/text_input.png')
-adventure_font_path = 'media/font_dungeon_quest.ttf'  # Replace with the correct path
+adventure_font_path = 'media/font_dungeon_quest.ttf'
