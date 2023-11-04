@@ -27,7 +27,7 @@ Control Mr. Krabs using the keyboard arrow keys and spacebar to shoot burgers. C
 Contributions to "Krabs' Burger-Battle: Die Geldfischjagd" are welcome! If you have suggestions or improvements, feel free to fork the repository and submit a pull request.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
 ## Contact
 For any additional questions or comments, you can reach out to Johannes Möller.
