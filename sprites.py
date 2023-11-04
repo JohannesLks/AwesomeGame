@@ -11,15 +11,36 @@ from abc import ABC, abstractmethod
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Inside the Player class __init__ method
-        self.image = pygame.transform.scale(player_img, (200, 185))  # Resize to appropriate dimensions
+        # Load all the animation frames
+        self.animation_frames = [player_img, player_throw_img1, player_throw_img2, player_throw_img3, player_throw_img4]
+        self.current_frame = 0
+        self.animating = False
+        self.animation_speed = 100  # milliseconds per frame
+        self.last_update = pygame.time.get_ticks()
+
+        self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
         self.speed = PLAYER_SPEED
         self.health = 100
         self.score = 0
         self.ammo = 10  # Player starts with 10 ammunition
 
+    def start_animation(self):
+        self.animating = True
+        self.current_frame = 0  # Start from the first frame
+
+    def update_animation(self):
+        now = pygame.time.get_ticks()
+        if self.animating and now - self.last_update > self.animation_speed:
+            self.last_update = now
+            self.current_frame += 1
+            if self.current_frame == len(self.animation_frames):
+                self.current_frame = 0  # Loop the animation
+                self.animating = False  # Stop animating after one loop
+            self.image = self.animation_frames[self.current_frame]
+
     def update(self, keys):
+        self.update_animation()
         if keys[pygame.K_a]:
             self.rect.x -= self.speed
         if keys[pygame.K_d]:
