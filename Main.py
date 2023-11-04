@@ -8,6 +8,7 @@ from datetime import datetime
 from settings import *
 from sprites import *
 
+running = True
 # Initialize pygame
 pygame.init()
 
@@ -28,6 +29,20 @@ money_sound = pygame.mixer.Sound(MONEY_SOUND)
 # Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
+
+player_height = player_img.get_height()  # Assuming player_img is the player's sprite image
+buffer_zone = 10  # Additional buffer zone where power-ups should not spawn
+
+shooting_area = {
+    'left': 0,  # You can add a WALL_WIDTH constant if you have walls
+    'right': SCREEN_WIDTH,
+    # The top and bottom will not change
+    'top': 0,
+    'bottom': SCREEN_HEIGHT - (player_height + buffer_zone)
+}
+
+
+
 
 # Custom events
 AMMO_REGEN_EVENT = pygame.USEREVENT + 1
@@ -78,6 +93,7 @@ def text_objects(text, font):
 # Startbildschirm anzeigen
 def show_start_screen(screen):
     try:
+        global running
         # Define button positions and sizes once, outside of the loop.
         start_button_x = SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2 - BUTTON_SPACING / 2 - BUTTON_WIDTH
         quit_button_x = SCREEN_WIDTH / 2 + BUTTON_SPACING / 2
@@ -91,16 +107,14 @@ def show_start_screen(screen):
         input_box_active = False
         input_box_x = SCREEN_WIDTH / 2 - INPUT_WIDTH / 2
         input_box_y = INPUT_BOX_Y_OFFSET
+        input_box_rect = pygame.Rect(input_box_x, input_box_y, INPUT_WIDTH, INPUT_HEIGHT)
     
         # Main loop for the start screen.
-        running = True
         while running:
             screen.blit(welcome_background_img, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                    pygame.quit()
-                    sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # This should be the tuple unpacking the return of create_button
                     start_button_rect, start_button_clicked = create_button(screen, start_button_img, start_button_hover_img, start_button_x, button_y, text='Start')
@@ -109,8 +123,6 @@ def show_start_screen(screen):
                     quit_button_rect, quit_button_clicked = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
                     if quit_button_rect.collidepoint(event.pos):
                         running = False
-                        pygame.quit()
-                        sys.exit()
                 # Handle input events for the input box
                 input_text, input_box_active = handle_input_events(event, input_text, input_box_active, input_box_rect)
 
@@ -153,19 +165,28 @@ def spawn_enemies(enemy_group, player_rect):
 
 
 # Function to handle spawning power-ups
-def spawn_power_ups(power_up_group, player_rect):
+def spawn_power_ups(power_up_group, player_rect, shooting_area):
     if random.randint(1, POWER_UP_RATE) == 1:
-        safe_margin = 100
-        power_up_x = random.randint(0, SCREEN_WIDTH)
-        power_up_y = random.randint(0, SCREEN_HEIGHT)
+        power_up_type = random.choice(list(POWER_UPS_ATTRIBUTES.keys()))
+        attributes = POWER_UPS_ATTRIBUTES[power_up_type]
+        power_up_image = pygame.image.load(attributes['image'])
+        
+        half_width = power_up_image.get_width() // 2
+        half_height = power_up_image.get_height() // 2  # Half-height of the power-up image
+        
+        # Adjust the x and y coordinates to account for the half-width and half-height of the power-up
+        x = random.randint(shooting_area['left'] + half_width, shooting_area['right'] - half_width)
+        y = random.randint(shooting_area['top'] + half_height, shooting_area['bottom'] - half_height)
 
         # Ensure the power-up does not spawn too close to the player
-        while abs(power_up_y - player_rect.y) < safe_margin:
-            power_up_y = random.randint(0, SCREEN_HEIGHT)
+        while abs(y - player_rect.y) < 100:
+            y = random.randint(shooting_area['top'] + half_height, shooting_area['bottom'] - half_height)
 
-        power_up_type = random.choice(['score_boost', 'speed_boost', 'health_boost'])
-        power_up = PowerUp(power_up_type, power_up_x, power_up_y)
+        power_up = PowerUp(power_up_type, x, y)
         power_up_group.add(power_up)
+
+
+
 
 
 def regenerate_ammo(player):
@@ -313,8 +334,7 @@ def game_over_screen(screen, score, player_name):
             # Event handling loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left click
                     if start_button_rect.collidepoint(event.pos):
                         # The button was clicked, start the game
@@ -364,7 +384,7 @@ def game_over_screen(screen, score, player_name):
 def main_game(player_name):
     try:
         # Main game loop
-        running = True
+        global running
         clock = pygame.time.Clock()
         player = Player()
         players = pygame.sprite.Group()
@@ -421,12 +441,8 @@ def main_game(player_name):
             for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
                 hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
                 for power_up in hit_power_ups:
-                    if power_up.type == 'score_boost':
-                        player.score *= SCORE_MULTIPLIER  # Apply score boost
-                    elif power_up.type == 'speed_boost':
-                        player.speed += 2  # Apply speed boost
-                    elif power_up.type == 'health_boost':
-                        player.health += 20  # Apply health boost
+                    power_up.effect(player)  # Apply the effect of the power-up
+
 
             #Ammunation regeneration
             for event in pygame.event.get():
@@ -436,7 +452,9 @@ def main_game(player_name):
 
             # Spawn enemies and power-ups
             spawn_enemies(enemies, player.rect)
-            spawn_power_ups(power_ups, player.rect)
+
+            spawn_power_ups(power_ups, player.rect, shooting_area)
+
 
             # Drawing everything on the screen
             screen.blit(background_img, (0, 0))
@@ -466,10 +484,6 @@ def main_game(player_name):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
         running = False
-# Spiel beenden
-def quit_game():
-    pygame.quit()
-    quit()
 
 # Hauptfunktion, die das Spiel startet
 def game_intro():
@@ -493,222 +507,10 @@ def game_intro():
         print(exc_type, fname, exc_tb.tb_lineno)
         running = False
 
-
-game_intro()       
-
-import pygame
-import random
-import sys
-import os
-import csv
-from datetime import datetime
-from settings import *
-from sprites import *
-
-# Initialize pygame
-pygame.init()
-
-# Centralized resources
-FONT_SIZE = 32
-FONT = pygame.font.Font(None, FONT_SIZE)
-BUTTON_FONT_SIZE = 36
-BUTTON_FONT = pygame.font.Font(None, BUTTON_FONT_SIZE)
-LARGE_FONT_SIZE = 80
-LARGE_FONT = pygame.font.SysFont(None, LARGE_FONT_SIZE)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-
-# Sound effects
-pygame.mixer.music.load('media/background_music.mp3')
-pygame.mixer.music.play(-1)  # Play the music indefinitely
-money_sound = pygame.mixer.Sound('media/money_sound.mp3')
-
-# Screen setup
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
-
-# Custom events
-AMMO_REGEN_EVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(AMMO_REGEN_EVENT, 2000)
-
-# Centralize button and input box creation
-def create_interactive_element(screen, element_type, image, image_hover, x, y, text='', text_color=BLACK, font=FONT, input_box_rect=None, input_bg_image=None):
-    if element_type == 'button':
-        button_rect = image.get_rect(topleft=(x, y))
-        mouse = pygame.mouse.get_pos()
-        clicked = pygame.mouse.get_pressed()[0]
-        button_image = image_hover if button_rect.collidepoint(mouse) else image
-
-        screen.blit(button_image, button_rect)
-
-        if text:
-            text_surf = font.render(text, True, text_color)
-            text_rect = text_surf.get_rect(center=button_rect.center)
-            screen.blit(text_surf, text_rect)
-
-        return button_rect, button_rect.collidepoint(mouse) and clicked
-    elif element_type == 'input_box':
-        if input_bg_image:
-            input_bg_rect = input_bg_image.get_rect(topleft=(input_box_rect.x, input_box_rect.y))
-            screen.blit(input_bg_image, input_bg_rect)
-
-        active_color = pygame.Color('dodgerblue2') if input_box_rect.active else pygame.Color('lightskyblue3')
-        pygame.draw.rect(screen, active_color, input_box_rect, 2)
-        text_surf = font.render(text, True, active_color)
-        screen.blit(text_surf, (input_box_rect.x + 5, input_box_rect.y + 5))
-        return text
-
-# Event handling
-def handle_events(event, input_text, input_box_active, input_box_rect):
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        if input_box_rect.collidepoint(event.pos):
-            input_box_active = not input_box_active
-        else:
-            input_box_active = False
-    elif event.type == pygame.KEYDOWN:
-        if input_box_active:
-            if event.key == pygame.K_RETURN:
-                print(input_text)  # Do something with the input text here.
-                input_text = ''
-            elif event.key == pygame.K_BACKSPACE:
-                input_text = input_text[:-1]
-            else:
-                input_text += event.unicode
-    return input_text, input_box_active
-
-# Enemy and Power-Up Spawning
-def spawn_entities(entity_group, entity_class, player_rect, spawn_chance, safe_margin=100):
-    if random.randint(1, spawn_chance) == 1:
-        entity = entity_class()
-        entity.rect.x = random.randint(0, SCREEN_WIDTH - entity.rect.width)
-        entity.rect.y = random.randint(0, SCREEN_HEIGHT - entity.rect.height)
-        while abs(entity.rect.y - player_rect.y) < safe_margin:
-            entity.rect.y = random.randint(0, SCREEN_HEIGHT - entity.rect.height)
-        entity_group.add(entity)
-
-# Highscore Management
-def manage_highscores(action, score=None, name=None, filename='highscores.csv'):
-    if action == 'load':
-        highscores = []
-        try:
-            with open(filename, 'r', newline='') as file:
-                reader = csv.reader(file)
-                for row in reader:
-                    if len(row) == 3:
-                        highscores.append(row)
-                highscores.sort(key=lambda x: int(x[1]), reverse=True)
-        except FileNotFoundError:
-            with open(filename, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(['Name', 'Score', 'Date'])
-        return highscores
-    elif action == 'save':
-        date_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-        with open(filename, 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([name, score, date_str])
-
-# Display Screens
-def display_screen(screen, screen_type, player_name='', score=0):
-    running = True
-    while running:
-        screen.fill(WHITE)
-        if screen_type == 'start':
-            start_button_rect, start_button_clicked = create_interactive_element(
-                screen, 'button', start_button_img, start_button_hover_img,
-                SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2, SCREEN_HEIGHT // 2,
-                text='Start', text_color=BLACK, font=BUTTON_FONT
-            )
-            if start_button_clicked:
-                main_game(player_name)  # Start the main game with the given player name
-                running = False
-
-        elif screen_type == 'game_over':
-            game_over_text = LARGE_FONT.render('Game Over', True, BLACK)
-            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4))
-            screen.blit(game_over_text, game_over_rect)
-
-            score_text = FONT.render(f'Your Score: {score}', True, BLACK)
-            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-            screen.blit(score_text, score_rect)
-
-            restart_button_rect, restart_button_clicked = create_interactive_element(
-                screen, 'button', start_button_img, restart_button_hover_img,
-                SCREEN_WIDTH // 2 - BUTTON_WIDTH // 2, SCREEN_HEIGHT // 2 + BUTTON_HEIGHT,
-                text='Restart', text_color=BLACK, font=BUTTON_FONT
-            )
-            if restart_button_clicked:
-                main_game(player_name)  # Restart the main game
-                running = False
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-                sys.exit()
-
-        pygame.display.flip()
-
-
-# Initialize the game loop
-def main_game(player_name):
-    running = True
-    clock = pygame.time.Clock()
-    player = Player()
-    enemies = pygame.sprite.Group()
-    bullets = pygame.sprite.Group()
-    power_ups = pygame.sprite.Group()
-
-    while running:
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == AMMO_REGEN_EVENT:
-                player.ammo += 1
-            else:
-                input_text, input_box_active = handle_events(event, player.name, False, pygame.Rect(0, 0, 0, 0))
-                player.name = input_text
-
-        spawn_entities(enemies, Enemy, player.rect, ENEMY_SPAWN_RATE)
-        spawn_entities(power_ups, PowerUp, player.rect, POWER_UP_RATE)
-
-        enemies.update()
-        bullets.update()
-        power_ups.update()
-
-        screen.fill(WHITE)
-        enemies.draw(screen)
-        bullets.draw(screen)
-        power_ups.draw(screen)
-
-        pygame.display.flip()
-
+if __name__ == '__main__':
+    game_intro()
+    if running:
+        main_game()
     pygame.quit()
-    sys.exit()
+    sys.exit()      
 
-# Starting point of the game
-def game_intro():
-    intro = True
-    player_name = ''
-    while intro:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            else:
-                player_name, _ = handle_events(event, player_name, False, pygame.Rect(0, 0, 0, 0))
-
-        screen.fill(WHITE)
-        BUTTON_FONT.render_to(screen, (100, 100), "Press any key to start", BLACK)
-        pygame.display.flip()
-
-        if player_name:  # Assuming player name is used as a start trigger
-            intro = False
-            main_game(player_name)
-
-# Start the game
-game_intro()
