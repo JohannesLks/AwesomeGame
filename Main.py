@@ -35,7 +35,7 @@ player_height = player_img.get_height()  # Assuming player_img is the player's s
 buffer_zone = 10  # Additional buffer zone where power-ups should not spawn
 
 shooting_area = {
-    'left': 0,  # You can add a WALL_WIDTH constant if you have walls
+    'left': 0,  
     'right': SCREEN_WIDTH,
     # The top and bottom will not change
     'top': 0,
@@ -485,7 +485,7 @@ def main_game(player_name):
                 hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
                 for power_up in hit_power_ups:
                     power_up.effect(player)  # Apply the effect of the power-up
-# In the collision detection part of your game loop
+
             for burger in burgers:
                 # Check for collision with enemies as usual
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
@@ -493,7 +493,7 @@ def main_game(player_name):
                     burger.kill()
                     player.score += 10  # Increase the score as usual
 
-                # Check for collision with blockers, if you want the burgers to disappear
+
                 hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
                 if hit_blockers:
                     burger.kill()  # Optionally make the burger disappear when hitting a blocker
