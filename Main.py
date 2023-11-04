@@ -4,6 +4,7 @@ import random
 import sys
 import os
 import csv
+import time
 from datetime import datetime
 from settings import *
 from sprites import *
@@ -306,14 +307,25 @@ def game_over_screen(screen, score, player_name):
         button_font = pygame.font.Font(None, 36)  # Adjust the font size as needed
         text_color = (0, 0, 0)  # White color for the text
         button_text = "New Game"
-        button_text = "New Game"
         text_surf = button_font.render(button_text, True, text_color)
         text_rect = text_surf.get_rect(center=start_button_rect.center)
 
-        # Stop the current background music and play the game over music
+        # Stop the current background music
         pygame.mixer.music.stop()
-        pygame.mixer.music.load('media/background_music.mp3')  # Ensure you have this file in your media directory
-        pygame.mixer.music.play(-1)  # Play the music indefinitely
+
+        # Load and play the game over sound effect
+        game_over_sound = pygame.mixer.Sound('media/game_over.wav')
+        game_over_channel = pygame.mixer.find_channel()
+        game_over_channel.play(game_over_sound)
+
+        # Wait for the game over sound to finish before starting the background music
+        while game_over_channel.get_busy():  # Wait until the sound is done playing
+            pygame.time.delay(100)  # Check every 100 milliseconds
+
+        # After the game over sound has finished playing, start the background music
+        pygame.mixer.music.load('media/background_music.mp3')
+        pygame.mixer.music.play(-1)
+
 
         big_font = pygame.font.SysFont(None, 80)  # A larger font for "Game Over" title
         font = pygame.font.SysFont(None, 36)  # Regular font for scores
