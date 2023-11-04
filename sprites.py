@@ -74,7 +74,7 @@ class Enemy(pygame.sprite.Sprite):
             self.direction = -1  # Move to the left
 
         # Randomly choose the vertical position
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
+        self.rect.y = random.randint(0, SCREEN_HEIGHT - (self.rect.height * 3.5)) # Leads to good burger throw animation
 
     def update(self):
         # Move horizontally at a constant speed
