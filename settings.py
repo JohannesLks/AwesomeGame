@@ -3,10 +3,10 @@ import pygame
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
-ENEMY_SPAWN_RATE = 60  # Lower number means more frequent spawns
-POWER_UP_RATE = 60    # Lower number means more frequent power-ups
+ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
+POWER_UP_RATE = 2000    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
-
+ENEMY_SPEED = 1
 
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
@@ -15,6 +15,12 @@ INPUT_HEIGHT = 40
 BUTTON_SPACING = 20  # Abstand zwischen den Knöpfen
 INPUT_BOX_Y_OFFSET = 150  # Abstand des Eingabefeldes von der oberen Bildschirmkante
 BUTTON_Y_OFFSET = INPUT_BOX_Y_OFFSET + INPUT_HEIGHT + 50  # Abstand der Knöpfe vom Eingabefeld
+
+current_wave = 1
+WAVE_DURATION = 20000
+BREAK_DURATION = 5000
+in_between_waves = False
+wave_start_time = 0
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -36,15 +42,15 @@ POWER_UPS_ATTRIBUTES = {
         'image': 'media/boost.png',
         'effect': lambda player: setattr(player, 'score', player.score + 50)
     },
-    'speed_boost': {
+    'ammo_boost': {
         'image': 'media/boost.png',
-        'effect': lambda player: setattr(player, 'speed', player.speed + 2)
+        'effect': lambda player: player.activate_ammo_boost()  # This will be a new method in the Player class
     },
     'health_boost': {
         'image': 'media/boost.png',
         'effect': lambda player: setattr(player, 'health', player.health + 20)
     },
-    # Add more power-up types here as needed
+    # ... (other power-up types remain unchanged)
 }
 
 player_throw_img1 = pygame.image.load('media/mr_krabs2.png')

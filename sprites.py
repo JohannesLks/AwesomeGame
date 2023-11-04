@@ -24,7 +24,9 @@ class Player(pygame.sprite.Sprite):
         self.health = 100
         self.score = 0
         self.ammo = 10  # Player starts with 10 ammunition
-
+        self.ammo_boost_active = False
+        self.ammo_boost_end_time = 0
+        
     def start_animation(self):
         self.animating = True
         self.current_frame = 0  # Start from the first frame
@@ -39,6 +41,10 @@ class Player(pygame.sprite.Sprite):
                 self.animating = False  # Stop animating after one loop
             self.image = self.animation_frames[self.current_frame]
 
+    def activate_ammo_boost(self):
+        self.ammo_boost_active = True
+        self.ammo_boost_end_time = pygame.time.get_ticks() + 10000  # 10 seconds from now
+
     def update(self, keys):
         self.update_animation()
         if keys[pygame.K_a]:
@@ -52,29 +58,34 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH
+        if self.ammo_boost_active and pygame.time.get_ticks() > self.ammo_boost_end_time:
+            self.ammo_boost_active = False
 
 
 # Enemy class
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = enemy_img
-        self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
-        
-        # Set a constant speed for all enemies
-        self.speed = 1
-        
         # Decide the starting side (left or right)
-        if random.choice([True, False]):
-            self.rect.x = -self.rect.width  # Start from the left side
+        starting_side = random.choice(['left', 'right'])
+        
+        # Load the original image and flip it if necessary
+        self.original_image = enemy_img
+        self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
+        self.rect = self.image.get_rect()
+
+        # Set the initial x position and direction based on the starting side
+        if starting_side == 'left':
+            self.rect.x = -self.rect.width  # Start off-screen to the left
             self.direction = 1  # Move to the right
         else:
-            self.rect.x = SCREEN_WIDTH  # Start from the right side
+            self.rect.x = SCREEN_WIDTH  # Start off-screen to the right
             self.direction = -1  # Move to the left
 
         # Randomly choose the vertical position
         self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
+        self.speed = ENEMY_SPEED
 
     def update(self):
         # Move horizontally at a constant speed

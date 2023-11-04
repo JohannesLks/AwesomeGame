@@ -155,19 +155,20 @@ def show_start_screen(screen):
 
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, player_rect):
-    if random.randint(1, ENEMY_SPAWN_RATE) == 1:
+    # Only spawn enemies if we are not in between waves
+    if not in_between_waves and random.randint(1, ENEMY_SPAWN_RATE) == 1:
         enemy = Enemy()
-        # Adjust the spawning position so it doesn't overlap with the player's area
-        safe_margin = 100  # Set a safe margin distance
-        # Make sure the enemy doesn't spawn within the safe margin around the player
-        while abs(enemy.rect.y - player_rect.y) < safe_margin:
-            enemy.rect.y = random.randint(0, SCREEN_HEIGHT - enemy.rect.height)
+        # Adjust spawning position to be above the bottom buffer zone
+        enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
         enemy_group.add(enemy)
-
 
 # Function to handle spawning power-ups
 def spawn_power_ups(power_up_group, player_rect, shooting_area):
-    if random.randint(1, POWER_UP_RATE) == 1:
+    global current_wave
+    # Adjust power-up rate based on the wave number
+    power_up_chance = max(1, POWER_UP_RATE - current_wave * 10)
+
+    if random.randint(1, power_up_chance) == 1:
         power_up_type = random.choice(list(POWER_UPS_ATTRIBUTES.keys()))
         attributes = POWER_UPS_ATTRIBUTES[power_up_type]
         power_up_image = pygame.image.load(attributes['image'])
@@ -191,8 +192,14 @@ def spawn_power_ups(power_up_group, player_rect, shooting_area):
 
 
 def regenerate_ammo(player):
-    if player.ammo < 10:
-        player.ammo += 1  # Regenerate one ammo
+    global current_wave
+    if player.ammo_boost_active:
+        ammo_increase_rate = 2  # Double the rate
+    else:
+        ammo_increase_rate = 1  # Normal rate
+    ammo_increase = max(1, current_wave // 3) * ammo_increase_rate
+    if player.ammo < 10 + ammo_increase:  
+        player.ammo += ammo_increase  # Regenerate ammo dynamically
 
 def load_highscores(filename='highscores.csv'):
     highscores = []
@@ -396,7 +403,8 @@ def game_over_screen(screen, score, player_name):
 def main_game(player_name):
     try:
         # Main game loop
-        global running
+        global current_wave, in_between_waves, wave_start_time, running
+
         clock = pygame.time.Clock()
         player = Player()
         players = pygame.sprite.Group()
@@ -404,6 +412,7 @@ def main_game(player_name):
         enemies = pygame.sprite.Group()
         burgers = pygame.sprite.Group()
         power_ups = pygame.sprite.Group()
+        wave_start_time = pygame.time.get_ticks()
 
 
         while running:
@@ -424,7 +433,24 @@ def main_game(player_name):
                             player.ammo -= 1
                 elif event.type == AMMO_REGEN_EVENT:
                     regenerate_ammo(player)
+                if in_between_waves:
+                    continue  # Ignoriere alle Events, wenn wir uns zwischen den Wellen befinden
 
+            # Aktualisiere die Zeit und überprüfe die Welle
+            current_time = pygame.time.get_ticks()
+            if not in_between_waves and current_time - wave_start_time > WAVE_DURATION:
+                in_between_waves = True
+                display_wave_message(screen, f"Wave {current_wave} completed!")
+                # Hier sollten keine Gegner gespawnt werden
+            elif in_between_waves and current_time - wave_start_time > WAVE_DURATION + BREAK_DURATION:
+                next_wave(enemies)  # Starte die nächste Welle und leere die Gegnerliste
+
+            if not in_between_waves:
+                # Gegner und Power-Ups spawnen, wenn keine Pause ist
+                spawn_enemies(enemies, player.rect)
+                spawn_power_ups(power_ups, player.rect, shooting_area)
+            # ...
+                
             for enemy in list(enemies):  # Make a copy of the group list to iterate over
                 enemy_off_screen = enemy.update()
                 if enemy_off_screen:
@@ -435,7 +461,8 @@ def main_game(player_name):
 
             # Update game states
             keys = pygame.key.get_pressed()
-            player.update(keys)
+            keys = pygame.key.get_pressed()
+            player.update(keys) 
             enemies.update()
             burgers.update()
 
@@ -519,10 +546,49 @@ def game_intro():
         print(exc_type, fname, exc_tb.tb_lineno)
         running = False
 
-if __name__ == '__main__':
-    game_intro()
-    if running:
-        main_game()
-    pygame.quit()
-    sys.exit()      
+def next_wave(enemies):
+    global current_wave, in_between_waves, wave_start_time, ENEMY_SPAWN_RATE
+    current_wave += 1
+    ENEMY_SPAWN_RATE = max(10, ENEMY_SPAWN_RATE - 2 ** current_wave)  # Exponential difficulty increase
+    in_between_waves = False
+    wave_start_time = pygame.time.get_ticks()
+    enemies.empty()  # Clear all existing enemies at the start of the new wave
 
+# Funktion zur Anzeige einer Nachricht zwischen den Wellen
+
+def display_wave_message(screen, message):
+    # Load the custom font
+    custom_font = pygame.font.Font(adventure_font_path, 48)
+    
+    # Create a semi-transparent surface to darken the background
+    overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 128))  # Black color with 50% opacity
+    screen.blit(overlay, (0, 0))  # Blit this overlay onto the screen to "dim" it
+
+    # Render the message text using the custom font
+    text_surface = custom_font.render(message, True, (255, 255, 255))
+    text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+
+    # Blit the text surface onto the screen
+    screen.blit(text_surface, text_rect)
+    pygame.display.flip()
+
+    # Instead of waiting, loop for the duration of the break while still processing events
+    start_time = pygame.time.get_ticks()
+    while pygame.time.get_ticks() - start_time < BREAK_DURATION:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        pygame.time.delay(100)  # Wait for 100 milliseconds at a time
+
+
+
+if __name__ == '__main__':
+    try:
+        game_intro()  # This will set the player_name and start the main game
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        pygame.quit()
+        sys.exit()
