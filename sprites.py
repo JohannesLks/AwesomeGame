@@ -97,6 +97,18 @@ class Enemy(pygame.sprite.Sprite):
             return True  # Indicate that an enemy has reached the edge
         return False
 
+class Blocker(pygame.sprite.Sprite):
+    def __init__(self, player_x, shooting_area):
+        super().__init__()
+        self.image = blocker_img
+        self.rect = self.image.get_rect(center=(player_x, random.randint(shooting_area['top'], shooting_area['bottom'])))
+        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
+        self.spawn_time = pygame.time.get_ticks()  # Record the spawn time
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.spawn_time > 10000:  # 10 seconds in milliseconds
+            self.kill()  # Despawn the blocker
 
 
 
