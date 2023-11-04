@@ -17,8 +17,8 @@ INPUT_BOX_Y_OFFSET = 150  # Abstand des Eingabefeldes von der oberen Bildschirmk
 BUTTON_Y_OFFSET = INPUT_BOX_Y_OFFSET + INPUT_HEIGHT + 50  # Abstand der Knöpfe vom Eingabefeld
 
 current_wave = 1
-WAVE_DURATION = 20000
-BREAK_DURATION = 5000
+WAVE_DURATION = 25000
+BREAK_DURATION = 3000
 in_between_waves = False
 wave_start_time = 0
 
