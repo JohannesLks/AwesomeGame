@@ -47,6 +47,11 @@ POWER_UPS_ATTRIBUTES = {
     # Add more power-up types here as needed
 }
 
+player_throw_img1 = pygame.image.load('media/mr_krabs2.png')
+player_throw_img2 = pygame.image.load('media/mr_krabs3.png')
+player_throw_img3 = pygame.image.load('media/mr_krabs4.png')
+player_throw_img4 = pygame.image.load('media/mr_krabs5.png')
+                                                          
 
 # Load game assets
 player_img = pygame.image.load('media/mr_krabs.png')

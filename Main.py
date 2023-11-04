@@ -418,6 +418,7 @@ def main_game(player_name):
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         if player.ammo > 0:
+                            player.start_animation()
                             burger = Burger(player.rect.centerx, player.rect.top)
                             burgers.add(burger)
                             player.ammo -= 1
@@ -440,7 +441,6 @@ def main_game(player_name):
 
             power_ups.update()
 
-            # Collision detection
             # Collision detection with enemies
             for burger in list(burgers):  # Iterate over a copy of the burgers
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
