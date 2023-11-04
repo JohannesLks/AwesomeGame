@@ -154,13 +154,25 @@ def show_start_screen(screen):
 
 
 # Function to handle spawning enemies
-def spawn_enemies(enemy_group, player_rect):
-    # Only spawn enemies if we are not in between waves
-    if not in_between_waves and random.randint(1, ENEMY_SPAWN_RATE) == 1:
-        enemy = Enemy()
-        # Adjust spawning position to be above the bottom buffer zone
-        enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
-        enemy_group.add(enemy)
+def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
+    try:
+        if random.randint(1, ENEMY_SPAWN_RATE) == 1:
+            enemy = Enemy()
+            # Adjust spawning position to be above the bottom buffer zone
+            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
+            enemy_group.add(enemy)
+        
+        # Add a chance to spawn a blocker instead of an enemy
+        if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
+            # Spawn the blocker at the player's x position within the shooting area
+            blocker = Blocker(player_rect.centerx, shooting_area)
+            blocker_group.add(blocker)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        running = False
+
 
 # Function to handle spawning power-ups
 def spawn_power_ups(power_up_group, player_rect, shooting_area):
@@ -413,7 +425,7 @@ def main_game(player_name):
         burgers = pygame.sprite.Group()
         power_ups = pygame.sprite.Group()
         wave_start_time = pygame.time.get_ticks()
-
+        blocker_group = pygame.sprite.Group()
 
         while running:
             clock.tick(60)  # Run at 60 frames per second
@@ -447,7 +459,7 @@ def main_game(player_name):
 
             if not in_between_waves:
                 # Gegner und Power-Ups spawnen, wenn keine Pause ist
-                spawn_enemies(enemies, player.rect)
+                spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
                 spawn_power_ups(power_ups, player.rect, shooting_area)
             # ...
                 
@@ -465,22 +477,26 @@ def main_game(player_name):
             player.update(keys) 
             enemies.update()
             burgers.update()
-
+            blocker_group.update()
             power_ups.update()
-
-            # Collision detection with enemies
-            for burger in list(burgers):  # Iterate over a copy of the burgers
-                hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
-                for enemy in hit_enemies:
-                    burger.kill()  # Remove the burger
-                    player.score += 10  # Increase the score
-                    money_sound.play()  # Play the money sound effect
 
             # Collision detection with power-ups
             for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
                 hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
                 for power_up in hit_power_ups:
                     power_up.effect(player)  # Apply the effect of the power-up
+# In the collision detection part of your game loop
+            for burger in burgers:
+                # Check for collision with enemies as usual
+                hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
+                for enemy in hit_enemies:
+                    burger.kill()
+                    player.score += 10  # Increase the score as usual
+
+                # Check for collision with blockers, if you want the burgers to disappear
+                hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
+                if hit_blockers:
+                    burger.kill()  # Optionally make the burger disappear when hitting a blocker
 
 
             #Ammunation regeneration
@@ -490,7 +506,7 @@ def main_game(player_name):
         
 
             # Spawn enemies and power-ups
-            spawn_enemies(enemies, player.rect)
+            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
 
             spawn_power_ups(power_ups, player.rect, shooting_area)
 
@@ -501,6 +517,9 @@ def main_game(player_name):
             enemies.draw(screen)
             burgers.draw(screen)
             power_ups.draw(screen)
+
+            for blocker in blocker_group:
+                screen.blit(blocker.image, blocker.rect)
 
 
             # Display the score
@@ -549,7 +568,7 @@ def game_intro():
 def next_wave(enemies):
     global current_wave, in_between_waves, wave_start_time, ENEMY_SPAWN_RATE
     current_wave += 1
-    ENEMY_SPAWN_RATE = max(10, ENEMY_SPAWN_RATE - 2 ** current_wave)  # Exponential difficulty increase
+    ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
     in_between_waves = False
     wave_start_time = pygame.time.get_ticks()
     enemies.empty()  # Clear all existing enemies at the start of the new wave
