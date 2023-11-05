@@ -337,16 +337,13 @@ def start_screen(screen):
                     name = name[:-1]
                 else:
                     name += event.unicode
-        screen.fill(WHITE)
-        # Hier Code zum Anzeigen von Text, Highscores und Eingabefeld
-        # ...
         pygame.display.flip()
     return name
 
 def game_over_screen(screen, score, player_name):
     big_font = pygame.font.Font(adventure_font_path, 80)
     regular_font = pygame.font.Font(adventure_font_path, 36)
-
+    save_highscore(player_name, score)
     highscores = load_highscores()
 
     start_button_x = SCREEN_WIDTH // 2 - start_button_img.get_width() // 2
