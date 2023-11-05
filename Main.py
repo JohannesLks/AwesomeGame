@@ -12,13 +12,31 @@ from sprites import *
 running = True
 # Initialize pygame
 pygame.init()
+size = (1000, 563)
 
-# Centralized resources
+# Set up the display without any frame
+screen = pygame.display.set_mode(size, pygame.NOFRAME)
+
+# Load the image you want to display
+start_image = pygame.image.load('media/loading_screen.png').convert()
+
+# Display the image for 3 seconds
+screen.blit(start_image, (0, 0))
+pygame.display.flip()  # Update the display
+pygame.time.wait(3000)  # Wait for 3000 milliseconds
+
+# Reinitialize the display with a frame for the main game
+pygame.display.set_mode(size)
+
+pygame.font.init()
+font = pygame.font.SysFont('arial', 32) 
+custom_font = pygame.font.Font(adventure_font_path, 48)
 FONT_SIZE = 32
 FONT = pygame.font.Font(None, FONT_SIZE)
 BUTTON_FONT = pygame.font.Font(None, 36)
 BIG_FONT = pygame.font.SysFont(None, 80)
 REGULAR_FONT = pygame.font.SysFont(None, 36)
+
 
 # Sound effects
 BACKGROUND_MUSIC = 'media/background_music.mp3'
@@ -67,7 +85,7 @@ def handle_input_events(event, input_text, input_box_active, input_box_rect):
             else:
                 input_text += event.unicode
     return input_text, input_box_active
-def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, font_size=FONT_SIZE):
+def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, font_size=FONT_SIZE, font_path=None):
     button_rect = image.get_rect(topleft=(x, y))
     mouse = pygame.mouse.get_pos()
     clicked = pygame.mouse.get_pressed()[0]
@@ -78,13 +96,15 @@ def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, f
 
     # Text on button
     if text:
-        font = pygame.font.Font(None, font_size)
-        text_surf = font.render(text, True, text_color)
+        if font_path:
+            text_font = pygame.font.Font(font_path, font_size)
+        else:
+            text_font = pygame.font.SysFont(None, font_size)
+        text_surf = text_font.render(text, True, text_color)
         text_rect = text_surf.get_rect(center=button_rect.center)
         screen.blit(text_surf, text_rect)
 
-    return button_rect, button_rect.collidepoint(mouse) and clicked
-
+    return button_rect, clicked
 
 # Funktion zum Erstellen von Text
 def text_objects(text, font):
@@ -96,13 +116,20 @@ def show_start_screen(screen):
     try:
         global running
         # Define button positions and sizes once, outside of the loop.
-        start_button_x = SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2 - BUTTON_SPACING / 2 - BUTTON_WIDTH
-        quit_button_x = SCREEN_WIDTH / 2 + BUTTON_SPACING / 2
-        button_y = BUTTON_Y_OFFSET
+        button_y = SCREEN_HEIGHT - BUTTON_HEIGHT - LOWER_OFFSET  # Lower the buttons by increasing this value
+
+        # Set the x position for the start button to be half the button's width to the left of the screen's center
+        start_button_x = center_x - half_button_width - BUTTON_SPACING // 2
+
+        # Set the x position for the quit button to be half the button's width to the right of the screen's center
+        quit_button_x = center_x + BUTTON_SPACING // 2
 
 
-        quit_button_rect = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
-        start_button_rect, _ = create_button(screen, start_button_img, start_button_hover_img, start_button_x, button_y, text='Start')
+        # Set the x position for the start button to be to the left of the center minus the button width
+        start_button_x = center_x - BUTTON_WIDTH - BUTTON_SPACING // 2
+
+        # Set the x position for the quit button to be to the right of the center
+        quit_button_x = center_x + BUTTON_SPACING // 2
 
         input_text = ''
         input_box_active = False
@@ -127,10 +154,14 @@ def show_start_screen(screen):
                 # Handle input events for the input box
                 input_text, input_box_active = handle_input_events(event, input_text, input_box_active, input_box_rect)
 
-            # Create the start and quit buttons
-            start_button_rect = create_button(screen, start_button_img, start_button_hover_img, start_button_x, button_y, text='Start')
-            quit_button_rect = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
-            
+            start_button_rect, start_button_clicked = create_button(
+                screen, start_button_img, start_button_hover_img, 
+                start_button_x, button_y, text='Start'
+            )
+            quit_button_rect, quit_button_clicked = create_button(
+                screen, quit_button_img, quit_button_hover_img, 
+                quit_button_x, button_y, text='Quit'
+            )
             # Handle the input box drawing and interaction here
             input_text, input_box_active, input_box_rect = input_box(
                 screen,
@@ -312,105 +343,60 @@ def start_screen(screen):
         pygame.display.flip()
     return name
 
-# Funktion für den Game Over-Bildschirm
 def game_over_screen(screen, score, player_name):
-    try:
-        screen.fill(WHITE)
-        # Define the position for the start button on the game over screen
-        start_button_x = SCREEN_WIDTH // 2 - start_button_img.get_width() // 2
-        start_button_y = SCREEN_HEIGHT - start_button_img.get_height() - 100
+    big_font = pygame.font.Font(adventure_font_path, 80)
+    regular_font = pygame.font.Font(adventure_font_path, 36)
 
-        # Create a Rect for the start button
-        start_button_rect = pygame.Rect(start_button_x, start_button_y, start_button_img.get_width(), start_button_img.get_height())
-    # Define font for the button text
-        button_font = pygame.font.Font(None, 36)  # Adjust the font size as needed
-        text_color = (0, 0, 0)  # White color for the text
-        button_text = "New Game"
-        text_surf = button_font.render(button_text, True, text_color)
+    highscores = load_highscores()
+
+    start_button_x = SCREEN_WIDTH // 2 - start_button_img.get_width() // 2
+    start_button_y = SCREEN_HEIGHT - start_button_img.get_height() - 50
+    start_button_rect = pygame.Rect(start_button_x, start_button_y, start_button_img.get_width(), start_button_img.get_height())
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button_rect.collidepoint(event.pos):
+                    main_game(player_name)
+                    running = False
+
+        # Draw everything first
+        screen.blit(game_over_img, (0, 0))
+
+        # Then handle the button appearance and interaction
+        mouse_pos = pygame.mouse.get_pos()
+        if start_button_rect.collidepoint(mouse_pos):
+            screen.blit(start_button_hover_img, start_button_rect.topleft)
+        else:
+            screen.blit(start_button_img, start_button_rect.topleft)
+
+        # Render the text for the button
+        text_surf = FONT.render('New Game', True, WHITE)
         text_rect = text_surf.get_rect(center=start_button_rect.center)
+        screen.blit(text_surf, text_rect)
 
-        # Stop the current background music
-        pygame.mixer.music.stop()
-
-        # Load and play the game over sound effect
-        game_over_sound = pygame.mixer.Sound('media/game_over.wav')
-        game_over_channel = pygame.mixer.find_channel()
-        game_over_channel.play(game_over_sound)
-
-        # Wait for the game over sound to finish before starting the background music
-        while game_over_channel.get_busy():  # Wait until the sound is done playing
-            pygame.time.delay(100)  # Check every 100 milliseconds
-
-        # After the game over sound has finished playing, start the background music
-        pygame.mixer.music.load('media/background_music.mp3')
-        pygame.mixer.music.play(-1)
-
-
-        big_font = pygame.font.SysFont(None, 80)  # A larger font for "Game Over" title
-        font = pygame.font.SysFont(None, 36)  # Regular font for scores
-       
-
-        # Load high scores and save the current score
-        highscores = load_highscores()
-        save_highscore(player_name, score)
-        highscores = load_highscores()  # Reload highscores to include the latest one
+        # Display "Game Over" title
+        title_surf = big_font.render('Game Over', True, WHITE)
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 50))
+        screen.blit(title_surf, title_rect)
 
         # Display the player's score
-        your_score_surf = font.render(f'Your Score: {score}', True, RED)
-        your_score_rect = your_score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50))
-        screen.blit(your_score_surf, your_score_rect)
+        score_surf = regular_font.render(f'Your Score: {score}', True, RED)
+        score_rect = score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150))
+        screen.blit(score_surf, score_rect)
 
-        running = True
-        while running:
-            # Event handling loop
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left click
-                    if start_button_rect.collidepoint(event.pos):
-                        # The button was clicked, start the game
-                        main_game(player_name)
-                        running = False
+        # Display the high score list
+        for i, highscore in enumerate(highscores[:5]):
+            highscore_text = f"{i + 1}. {highscore[0]} - {highscore[1]}"
+            highscore_surf = regular_font.render(highscore_text, True, WHITE)
+            highscore_rect = highscore_surf.get_rect(center=(SCREEN_WIDTH // 2, 150 + i * 50))
+            screen.blit(highscore_surf, highscore_rect)
 
-            # Clear the screen
-            screen.fill(WHITE)
-            # Display "Game Over" text
-            game_over_surf = big_font.render('Game Over', True, BLACK)
-            game_over_rect = game_over_surf.get_rect(center=(SCREEN_WIDTH // 2, 50))
-            screen.blit(game_over_surf, game_over_rect)
-
-            # Display the title for highscores
-            title_surf = font.render('High Scores', True, BLACK)
-            title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 120))
-            screen.blit(title_surf, title_rect)
-
-            # Display each high score
-            for index, highscore in enumerate(highscores[:5]):  # Show top 5 high scores
-                score_text = f"{index + 1}. {highscore[0]} - {highscore[1]} - {highscore[2]}"
-                score_surf = font.render(score_text, True, BLACK)
-                score_rect = score_surf.get_rect(center=(SCREEN_WIDTH // 2, 160 + index * 40))
-                screen.blit(score_surf, score_rect)
-
-                
-            mouse_pos = pygame.mouse.get_pos()
-            button_image = start_button_hover_img if start_button_rect.collidepoint(mouse_pos) else start_button_img
-            screen.blit(button_image, start_button_rect.topleft)
-
-            # Draw the button text
-            button_text = "New Game"
-            text_surf = button_font.render(button_text, True, text_color)
-            text_rect = text_surf.get_rect(center=start_button_rect.center)
-            screen.blit(text_surf, text_rect)
-
-
-            # Update the display
-            pygame.display.flip()
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
-
+        # Update the display after all drawing
+        pygame.display.flip()
 
 def main_game(player_name):
     try:
@@ -576,8 +562,6 @@ def next_wave(enemies):
 # Funktion zur Anzeige einer Nachricht zwischen den Wellen
 
 def display_wave_message(screen, message):
-    # Load the custom font
-    custom_font = pygame.font.Font(adventure_font_path, 48)
     
     # Create a semi-transparent surface to darken the background
     overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)

@@ -16,9 +16,13 @@ BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 INPUT_WIDTH = 200
 INPUT_HEIGHT = 40
-BUTTON_SPACING = 20  # Abstand zwischen den Knöpfen
-INPUT_BOX_Y_OFFSET = 150  # Abstand des Eingabefeldes von der oberen Bildschirmkante
+BUTTON_SPACING = 200  # Abstand zwischen den Knöpfen
+LOWER_OFFSET = 70
+INPUT_BOX_Y_OFFSET = 380 # Abstand des Eingabefeldes von der oberen Bildschirmkante
 BUTTON_Y_OFFSET = INPUT_BOX_Y_OFFSET + INPUT_HEIGHT + 50  # Abstand der Knöpfe vom Eingabefeld
+center_x = SCREEN_WIDTH // 2
+half_button_width = BUTTON_WIDTH // 2
+
 
 current_wave = 1
 WAVE_DURATION = 30000
@@ -35,10 +39,6 @@ BLACK = (0, 0, 0)
 LIGHT_BLUE = (173, 216, 230)  # An example color for the inactive state
 DARK_BLUE = (0, 0, 139)  # An example color for the active state
 
-# Initialize the font
-pygame.font.init()  # Only needed if not already called
-font = pygame.font.SysFont('arial', 32)  # You can replace 'arial' with any other font
-
 
 # This dictionary maps power-up types to their images and attributes
 POWER_UPS_ATTRIBUTES = {
@@ -54,7 +54,7 @@ POWER_UPS_ATTRIBUTES = {
         'image': 'media/boost.png',
         'effect': lambda player: setattr(player, 'health', player.health + 20)
     },
-    # ... (other power-up types remain unchanged)
+
 }
 
 player_throw_img1 = pygame.image.load('media/mr_krabs2.png')
@@ -68,7 +68,8 @@ player_img = pygame.image.load('media/mr_krabs.png')
 enemy_img = pygame.image.load('media/blowfish.png')
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
-welcome_background_img = pygame.image.load('media/bikini_bottom.png')
+welcome_background_img = pygame.image.load('media/menu.png')
+game_over_img = pygame.image.load('media/game_over_screen.png')
 start_button_img = pygame.image.load('media/start_button.png')
 start_button_hover_img = pygame.image.load('media/start_button_hover.png')
 quit_button_img = pygame.image.load('media/quit_button.png')
