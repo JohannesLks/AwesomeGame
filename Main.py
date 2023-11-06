@@ -44,6 +44,7 @@ MONEY_SOUND = 'media/money_sound.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
 money_sound = pygame.mixer.Sound(MONEY_SOUND)
+throw_sound = pygame.mixer.Sound(THROW_SOUND)
 
 # Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -426,6 +427,7 @@ def main_game(player_name):
                             burger = Burger(player.rect.centerx, player.rect.top)
                             burgers.add(burger)
                             player.ammo -= 1
+                            throw_sound.play()
                 elif event.type == AMMO_REGEN_EVENT:
                     regenerate_ammo(player)
                 if in_between_waves:

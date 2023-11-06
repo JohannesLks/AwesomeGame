@@ -77,3 +77,5 @@ quit_button_hover_img = pygame.image.load('media/quit_button_hover.png')
 input_bg_image = pygame.image.load('media/text_input.png')
 adventure_font_path = 'media/font_dungeon_quest.ttf'
 blocker_img = pygame.image.load('media/plankton.png')
+
+THROW_SOUND = 'media/throw.mp3'
