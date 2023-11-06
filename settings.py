@@ -65,7 +65,7 @@ player_throw_img4 = pygame.image.load('media/mr_krabs5.png')
 
 # Load game assets
 player_img = pygame.image.load('media/mr_krabs.png')
-enemy_img = pygame.image.load('media/blowfish.png')
+enemy_img = pygame.image.load('media/fish.png')
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
 welcome_background_img = pygame.image.load('media/menu.png')
