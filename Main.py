@@ -515,7 +515,7 @@ def main_game(player_name):
             screen.blit(health_text, (10, 50))
         
             # Display the ammunation
-            ammo_text = font.render(f'Ammo: {player.ammo}', True, GREEN)
+            ammo_text = font.render(f'Burger: {player.ammo}', True, GREEN)
             screen.blit(ammo_text, (10, 80))
 
             # Update the display
