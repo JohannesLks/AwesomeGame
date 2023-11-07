@@ -1,32 +1,76 @@
 import pygame
-import os
-from settings import *
 import random
-from abc import ABC, abstractmethod
+from settings import *
 
+player_images = [pygame.image.load(f'media/mr_krabs{i}.png') for i in range(4)]
+enemy_image = pygame.image.load('media/fish.png')
+burger_image = pygame.image.load('media/burger.png')
+blocker_image = pygame.image.load('media/plankton.png')
+power_up_images = {
+    'score_boost': pygame.image.load('media/boost.png'),
+    'ammo_boost': pygame.image.load('media/boost.png'),
+    'health_boost': pygame.image.load('media/boost.png'),
+}
 
+# Abstract Factory Interface
+class SpriteFactory:
+    @staticmethod
+    def create_player():
+        raise NotImplementedError
 
+    @staticmethod
+    def create_enemy():
+        raise NotImplementedError
+
+    @staticmethod
+    def create_burger(x, y):
+        raise NotImplementedError
+
+    @staticmethod
+    def create_power_up(power_up_type, x, y):
+        raise NotImplementedError
+
+# Concrete Factory
+class GameSpriteFactory(SpriteFactory):
+    @staticmethod
+    def create_player(*args, **kwargs):
+        return Player(player_images=player_images, speed=PLAYER_SPEED, *args, **kwargs)
+
+    @staticmethod
+    def create_enemy(*args, **kwargs):
+        return Enemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+
+    @staticmethod
+    def create_burger(x, y, *args, **kwargs):
+        return Burger(x, y, burger_image=burger_image, *args, **kwargs)
+
+    @staticmethod
+    def create_power_up(power_up_type, x, y, *args, **kwargs):
+        return PowerUp(power_up_type, x, y, power_up_images=power_up_images, *args, **kwargs)
+
+    @staticmethod
+    def create_blocker(player_x, top, bottom, *args, **kwargs):
+        return Blocker(player_x, top, bottom, blocker_image=blocker_image, *args, **kwargs)
 
 # Player class
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        # Load all the animation frames
-        self.animation_frames = [player_img, player_throw_img1, player_throw_img2, player_throw_img3, player_throw_img4]
+    def __init__(self, player_images, speed, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.animation_frames = player_images
         self.current_frame = 0
         self.animating = False
         self.animation_speed = 100  # milliseconds per frame
         self.last_update = pygame.time.get_ticks()
-
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
-        self.speed = PLAYER_SPEED
+        self.speed = speed
         self.health = 100
         self.score = 0
         self.ammo = 10  # Player starts with 10 ammunition
         self.ammo_boost_active = False
         self.ammo_boost_end_time = 0
-        
+
     def start_animation(self):
         self.animating = True
         self.current_frame = 0  # Start from the first frame
@@ -53,7 +97,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         if keys is None:
             keys = pygame.key.get_pressed()
-        # Keep the player on the screen
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
@@ -61,87 +104,61 @@ class Player(pygame.sprite.Sprite):
         if self.ammo_boost_active and pygame.time.get_ticks() > self.ammo_boost_end_time:
             self.ammo_boost_active = False
 
-
 # Enemy class
-
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        # Decide the starting side (left or right)
+    def __init__(self, enemy_image, speed, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         starting_side = random.choice(['left', 'right'])
-        
-        # Load the original image and flip it if necessary
         self.original_image = enemy_img
         self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()
-
-        # Set the initial x position and direction based on the starting side
         if starting_side == 'left':
-            self.rect.x = -self.rect.width  # Start off-screen to the left
-            self.direction = 1  # Move to the right
+            self.rect.x = -self.rect.width
+            self.direction = 1
         else:
-            self.rect.x = SCREEN_WIDTH  # Start off-screen to the right
-            self.direction = -1  # Move to the left
-
-        # Randomly choose the vertical position
+            self.rect.x = SCREEN_WIDTH
+            self.direction = -1
         self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
         self.speed = ENEMY_SPEED
 
     def update(self):
-        # Move horizontally at a constant speed
         self.rect.x += self.speed * self.direction
-        
-        # Remove the sprite when it moves off the screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
-            self.kill()  # Remove the enemy
-            return True  # Indicate that an enemy has reached the edge
+            self.kill()
+            return True
         return False
 
-class Blocker(pygame.sprite.Sprite):
-    def __init__(self, player_x, shooting_area):
-        super().__init__()
-        self.image = blocker_img
-        self.rect = self.image.get_rect(center=(player_x, random.randint(shooting_area['top'], shooting_area['bottom'])))
-        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
-        self.spawn_time = pygame.time.get_ticks()  # Record the spawn time
-
-    def update(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.spawn_time > 10000:  # 10 seconds in milliseconds
-            self.kill()  # Despawn the blocker
-
-
-
-# Make sure the burger's update method moves it upwards
+# Burger class
 class Burger(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = burger_img
+    def __init__(self, x, y, burger_image, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image = burger_image
         self.rect = self.image.get_rect(center=(x, y))
-        self.mask = pygame.mask.from_surface(self.image)  # Erstellen der Maske aus dem Bild
+
     def update(self):
-        # Move the burger upwards
         self.rect.y -= 5
-        # Remove the burger if it moves off the top of the screen
         if self.rect.bottom < 0:
             self.kill()
 
-# Power-up class
+# PowerUp class
 class PowerUp(pygame.sprite.Sprite):
-    def __init__(self, power_up_type, x, y):
-        super().__init__()
-        attributes = POWER_UPS_ATTRIBUTES[power_up_type]
+    def __init__(self, power_up_type, x, y, power_up_images, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.type = power_up_type
-        self.image = pygame.image.load(attributes['image'])
+        self.image = power_up_images[power_up_type]
         self.rect = self.image.get_rect(center=(x, y))
-        self.effect = attributes['effect']
-        self.half_width = self.image.get_width() // 2  # Half-width of the power-up image
+        self.effect = POWER_UPS_ATTRIBUTES[power_up_type]['effect']
         self.spawn_time = pygame.time.get_ticks()
 
-        
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.spawn_time > 4000:  # 4000 milliseconds = 4 seconds
-            self.kill()  # Remove the power-up after 3 seconds
-    
+            self.kill()
 
+class Blocker(pygame.sprite.Sprite):
+    def __init__(self, player_x, top, bottom, blocker_image, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image = blocker_image
+        self.rect = self.image.get_rect(center=(player_x, random.randint(top, bottom)))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.spawn_time = pygame.time.get_ticks()

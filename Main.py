@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from settings import *
 from sprites import *
+from sprites import GameSpriteFactory
 
 running = True
 # Initialize pygame
@@ -50,7 +51,7 @@ throw_sound = pygame.mixer.Sound(THROW_SOUND)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
 
-player_height = player_img.get_height()  # Assuming player_img is the player's sprite image
+player_height = player_images[0].get_height() # Assuming player_img is the player's sprite image
 buffer_zone = 10  # Additional buffer zone where power-ups should not spawn
 
 shooting_area = {
@@ -189,7 +190,7 @@ def show_start_screen(screen):
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     try:
         if random.randint(1, ENEMY_SPAWN_RATE) == 1:
-            enemy = Enemy()
+            enemy = GameSpriteFactory.create_enemy()
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
@@ -197,7 +198,7 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
         # Add a chance to spawn a blocker instead of an enemy
         if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
             # Spawn the blocker at the player's x position within the shooting area
-            blocker = Blocker(player_rect.centerx, shooting_area)
+            blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
             blocker_group.add(blocker)
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -228,7 +229,7 @@ def spawn_power_ups(power_up_group, player_rect, shooting_area):
         while abs(y - player_rect.y) < 100:
             y = random.randint(shooting_area['top'] + half_height, shooting_area['bottom'] - half_height)
 
-        power_up = PowerUp(power_up_type, x, y)
+        power_up = GameSpriteFactory.create_power_up(power_up_type, x, y)
         power_up_group.add(power_up)
 
 
@@ -402,7 +403,7 @@ def main_game(player_name):
         global current_wave, in_between_waves, wave_start_time, running
 
         clock = pygame.time.Clock()
-        player = Player()
+        player = GameSpriteFactory.create_player()
         players = pygame.sprite.Group()
         players.add(player)
         enemies = pygame.sprite.Group()
@@ -424,7 +425,7 @@ def main_game(player_name):
                     if event.key == pygame.K_SPACE:
                         if player.ammo > 0:
                             player.start_animation()
-                            burger = Burger(player.rect.centerx, player.rect.top)
+                            burger = GameSpriteFactory.create_burger(player.rect.centerx, player.rect.top)
                             burgers.add(burger)
                             player.ammo -= 1
                             throw_sound.play()
