@@ -4,10 +4,10 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
 ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
-POWER_UP_RATE = 2000    # Lower number means more frequent power-ups
+POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 ENEMY_SPEED = 1
-BLOCKER_SPAWN_RATE = 1090 
+BLOCKER_SPAWN_RATE = 1000 
 
 # Define a constant for how much the enemy spawn rate should increase with each wave
 ENEMY_SPAWN_INCREMENT = 10  # This means with each wave, the spawn rate will increase by 10
@@ -57,14 +57,7 @@ POWER_UPS_ATTRIBUTES = {
 
 }
 
-player_throw_img1 = pygame.image.load('media/mr_krabs2.png')
-player_throw_img2 = pygame.image.load('media/mr_krabs3.png')
-player_throw_img3 = pygame.image.load('media/mr_krabs4.png')
-player_throw_img4 = pygame.image.load('media/mr_krabs5.png')
-                                                          
-
 # Load game assets
-player_img = pygame.image.load('media/mr_krabs.png')
 enemy_img = pygame.image.load('media/fish.png')
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
