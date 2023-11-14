@@ -10,7 +10,7 @@ from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
 
-running = True
+running = True #richtig
 # Initialize pygame
 pygame.init()
 size = (1000, 563)
