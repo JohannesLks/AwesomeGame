@@ -188,6 +188,8 @@ def show_start_screen(screen):
 
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
+    max_blockers = 8 # Limited amount of blockers, otherwise game tends to become unplayable
+    global BLOCKER_COUNT
     try:
         if random.randint(1, ENEMY_SPAWN_RATE) == 1:
             enemy = GameSpriteFactory.create_enemy()
@@ -198,8 +200,10 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
         # Add a chance to spawn a blocker instead of an enemy
         if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
             # Spawn the blocker at the player's x position within the shooting area
-            blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
-            blocker_group.add(blocker)
+            if BLOCKER_COUNT < max_blockers:
+                blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
+                blocker_group.add(blocker)
+                BLOCKER_COUNT += 1
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

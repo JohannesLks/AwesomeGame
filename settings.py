@@ -7,7 +7,8 @@ ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 ENEMY_SPEED = 1
-BLOCKER_SPAWN_RATE = 1000 
+BLOCKER_SPAWN_RATE = 2000 # Lower number means more frequent spawns
+BLOCKER_COUNT = 0
 
 # Define a constant for how much the enemy spawn rate should increase with each wave
 ENEMY_SPAWN_INCREMENT = 10  # This means with each wave, the spawn rate will increase by 10
