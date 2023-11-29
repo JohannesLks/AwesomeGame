@@ -2,13 +2,15 @@ import unittest
 from unittest.mock import Mock, patch
 import pygame
 
-# Apply the necessary mocks for Pygame functionalities
+# Mock necessary Pygame functionalities
 @patch('pygame.display.set_mode', Mock())
 @patch('pygame.image.load', Mock(return_value=Mock(convert=Mock(return_value=Mock()))))
-@patch('pygame.display.flip', Mock())  # Mock display.flip
+@patch('pygame.display.flip', Mock())
 @patch('pygame.mixer.init', Mock())
 @patch('pygame.mixer.music.load', Mock())
 @patch('pygame.mixer.music.play', Mock())
+@patch('pygame.mixer.Sound', Mock())
+
 def setUpModule():
     # Import Main after mocks are set up
     global Main
