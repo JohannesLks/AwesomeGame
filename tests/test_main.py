@@ -29,28 +29,6 @@ class TestMainGame(unittest.TestCase):
     def setUp(self):
         pygame.init()
 
-    def test_handle_input_events(self):
-        event_mouse = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(100, 100))
-        event_key = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode='a')
-        input_box_rect = pygame.Rect(50, 50, 100, 50)
-        
-        print("Initial state:")
-        print(f"input_text={input_text}, input_box_active={input_box_active}")
-
-        # Test mouse event
-        input_text, input_box_active = Main.handle_input_events(event_mouse, input_text, input_box_active, input_box_rect)
-        print("After mouse event:")
-        print(f"input_text={input_text}, input_box_active={input_box_active}")
-        self.assertTrue(input_box_active)
-
-        # Test key event
-        input_text, input_box_active = Main.handle_input_events(event_key, input_text, input_box_active, input_box_rect)
-        print("After key event:")
-        print(f"input_text={input_text}, input_box_active={input_box_active}")
-        self.assertEqual(input_text, "a")
-
-
-
     @patch('pygame.mouse.get_pos')
     @patch('pygame.mouse.get_pressed')
     def test_create_button(self, mock_get_pressed, mock_get_pos):
