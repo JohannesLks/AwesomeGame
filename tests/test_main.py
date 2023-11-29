@@ -1,14 +1,20 @@
 import unittest
 from unittest.mock import Mock, patch
 import pygame
-with patch('pygame.mixer.init', Mock()), patch('pygame.mixer.music.load', Mock()):
-    import Main
+import sys
+@patch('pygame.mixer.init', Mock())
+@patch('pygame.mixer.music.load', Mock())
+@patch('pygame.mixer.music.play', Mock())
+
 
 
 class TestMainGame(unittest.TestCase):
 
-    def setUp(self):
+    @patch('pygame.display.set_mode')  # Mock set_mode if not testing display functionality
+    def setUp(self, mock_set_mode):
         pygame.init()
+        sys.modules['Main'] = Mock()  # Mock the Main module
+        import Main  # Import Main after applying the mocks
 
     def test_handle_input_events(self):
         event_mouse = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(100, 100))
