@@ -1,11 +1,10 @@
 import unittest
 from unittest.mock import patch
-import pygame
-from sprites import Player, GameSpriteFactory
+import sys
 
-@patch('pygame.mixer.init')
-def setUpModule(mock_mixer_init):
-    pygame.init()
+with patch('pygame.mixer.init'):
+    import pygame
+    from sprites import Player, GameSpriteFactory
 
 class TestPlayer(unittest.TestCase):
     def setUp(self):
