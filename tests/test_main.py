@@ -45,4 +45,5 @@ class TestMainGame(unittest.TestCase):
 
         Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
         self.assertEqual(len(enemy_group), 1)
-
+if __name__ == '__main__':
+    unittest.main()

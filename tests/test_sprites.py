@@ -1,7 +1,11 @@
 import unittest
+from unittest.mock import patch
 import pygame
 from sprites import Player, GameSpriteFactory
 
+@patch('pygame.mixer.init')
+def setUpModule(mock_mixer_init):
+    pygame.init()
 
 class TestPlayer(unittest.TestCase):
     def setUp(self):
@@ -48,5 +52,5 @@ class TestPowerUp(unittest.TestCase):
         self.assertTrue(self.power_up.spawn_time > 0)
 
     # Add more tests relevant to PowerUp class...
-
-
+if __name__ == '__main__':
+    unittest.main()
