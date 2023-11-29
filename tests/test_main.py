@@ -33,16 +33,22 @@ class TestMainGame(unittest.TestCase):
         event_mouse = pygame.event.Event(pygame.MOUSEBUTTONDOWN, pos=(100, 100))
         event_key = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_a, unicode='a')
         input_box_rect = pygame.Rect(50, 50, 100, 50)
+        
+        print("Initial state:")
+        print(f"input_text={input_text}, input_box_active={input_box_active}")
 
         # Test mouse event
-        input_text, input_box_active = Main.handle_input_events(event_mouse, "", False, input_box_rect)
-        print(f"Mouse event: input_text={input_text}, input_box_active={input_box_active}")
+        input_text, input_box_active = Main.handle_input_events(event_mouse, input_text, input_box_active, input_box_rect)
+        print("After mouse event:")
+        print(f"input_text={input_text}, input_box_active={input_box_active}")
         self.assertTrue(input_box_active)
 
         # Test key event
-        input_text, input_box_active = Main.handle_input_events(event_key, "", True, input_box_rect)
-        print(f"Key event: input_text={input_text}, input_box_active={input_box_active}")
+        input_text, input_box_active = Main.handle_input_events(event_key, input_text, input_box_active, input_box_rect)
+        print("After key event:")
+        print(f"input_text={input_text}, input_box_active={input_box_active}")
         self.assertEqual(input_text, "a")
+
 
 
     @patch('pygame.mouse.get_pos')
