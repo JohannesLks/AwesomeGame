@@ -11,7 +11,7 @@ player_images = [pygame.image.load(f'media/mr_krabs{i}.png') for i in range(4)]
 enemy_image = pygame.image.load('media/fish.png')
 advanced_enemy_image = pygame.image.load('media/fish2.png')
 burger_image = pygame.image.load('media/burger.png')
-blocker_image = pygame.image.load('media/plankton.png')
+blocker_image = pygame.image.load('media/Plankton.png')
 power_up_images = {
     'score_boost': pygame.image.load('media/boost.png'),
     'ammo_boost': pygame.image.load('media/boost.png'),
