@@ -41,10 +41,8 @@ REGULAR_FONT = pygame.font.SysFont(None, 36)
 
 # Sound effects
 BACKGROUND_MUSIC = 'media/background_music.mp3'
-MONEY_SOUND = 'media/money_sound.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
-money_sound = pygame.mixer.Sound(MONEY_SOUND)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 
 # Screen setup
@@ -190,7 +188,11 @@ def show_start_screen(screen):
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     try:
         if random.randint(1, ENEMY_SPAWN_RATE) == 1:
-            enemy = GameSpriteFactory.create_enemy()
+            try:
+                enemy = GameSpriteFactory.create_enemy("standard")
+                enemy = GameSpriteFactory.create_enemy("advanced")
+            except TypeError as e:
+                print(f"TypeError occurred: {e}")
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
@@ -476,8 +478,15 @@ def main_game(player_name):
                 # Check for collision with enemies as usual
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
                 for enemy in hit_enemies:
+                    if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
+                        try:
+                            player.score += enemy.score_value  # Update the player's money
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            running = False
                     burger.kill()
-                    player.score += 10  # Increase the score as usual
 
 
                 hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
@@ -510,7 +519,7 @@ def main_game(player_name):
 
             # Display the score
             font = pygame.font.SysFont(None, 36)
-            score_text = font.render(f'Score: {player.score}', True, BLUE)
+            score_text = font.render(f'Money: {player.score}', True, GREEN)
             screen.blit(score_text, (10, 10))
 
             # Display the health
@@ -518,7 +527,7 @@ def main_game(player_name):
             screen.blit(health_text, (10, 50))
         
             # Display the ammunation
-            ammo_text = font.render(f'Burger: {player.ammo}', True, GREEN)
+            ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
             screen.blit(ammo_text, (10, 80))
 
             # Update the display

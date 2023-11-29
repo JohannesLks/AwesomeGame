@@ -1,4 +1,6 @@
 import pygame
+import sys
+import os
 # Constants for the game
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
@@ -7,11 +9,10 @@ ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 ENEMY_SPEED = 1
-BLOCKER_SPAWN_RATE = 1000 
+BLOCKER_SPAWN_RATE = 10000
 
 # Define a constant for how much the enemy spawn rate should increase with each wave
 ENEMY_SPAWN_INCREMENT = 10  # This means with each wave, the spawn rate will increase by 10
-
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 INPUT_WIDTH = 200
@@ -23,7 +24,21 @@ BUTTON_Y_OFFSET = INPUT_BOX_Y_OFFSET + INPUT_HEIGHT + 50  # Abstand der Knöpfe 
 center_x = SCREEN_WIDTH // 2
 half_button_width = BUTTON_WIDTH // 2
 
+#Enemys
+#Standard
+STANDARD_HITPOINTS = 1
+ENEMY_SPEED = 1
+STANDARD_ENEMY_SCORE_VALUE = 10
+#Advanced
+ADVANCED_ENEMY_SPEED = 0.5
+ADVANCED_HITPOINTS = 5
+ADVANCED_ENEMY_SCORE_VALUE = 100
 
+
+#Burgers
+BURGER_DAMAGE = 1
+
+#Waves
 current_wave = 1
 WAVE_DURATION = 30000
 BREAK_DURATION = 3000
@@ -58,7 +73,6 @@ POWER_UPS_ATTRIBUTES = {
 }
 
 # Load game assets
-enemy_img = pygame.image.load('media/fish.png')
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
 welcome_background_img = pygame.image.load('media/menu.png')
@@ -69,6 +83,6 @@ quit_button_img = pygame.image.load('media/quit_button.png')
 quit_button_hover_img = pygame.image.load('media/quit_button_hover.png')
 input_bg_image = pygame.image.load('media/text_input.png')
 adventure_font_path = 'media/font_dungeon_quest.ttf'
-blocker_img = pygame.image.load('media/plankton.png')
+blocker_img = pygame.image.load('media/Plankton.png')
 
 THROW_SOUND = 'media/throw.mp3'
