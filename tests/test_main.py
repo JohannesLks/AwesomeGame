@@ -5,6 +5,7 @@ import pygame
 # Apply the necessary mocks for Pygame functionalities
 @patch('pygame.display.set_mode', Mock())
 @patch('pygame.image.load', Mock(return_value=Mock(convert=Mock(return_value=Mock()))))
+@patch('pygame.display.flip', Mock())  # Mock display.flip
 @patch('pygame.mixer.init', Mock())
 @patch('pygame.mixer.music.load', Mock())
 @patch('pygame.mixer.music.play', Mock())
