@@ -20,6 +20,8 @@ def setUpModule():
     global Main
     import Main
 
+    pygame.Rect.collidepoint = Mock(return_value=True)
+
 
 class TestMainGame(unittest.TestCase):
 
