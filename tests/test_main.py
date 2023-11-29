@@ -16,6 +16,7 @@ import pygame
 
 def setUpModule():
     # Import Main after mocks are set up
+    pygame.mixer.init()
     global Main
     import Main
 
