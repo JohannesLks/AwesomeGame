@@ -1,7 +1,9 @@
 import unittest
 from unittest.mock import Mock, patch
-import pygame
-import Main
+with patch('pygame.mixer.init'):
+    import pygame
+    import Main
+
 
 class TestMainGame(unittest.TestCase):
 
