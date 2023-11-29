@@ -2,6 +2,11 @@ import unittest
 from unittest.mock import Mock, patch
 import pygame
 
+# Custom subclass of pygame.Rect with a mock collidepoint method
+class MockRect(pygame.Rect):
+    def collidepoint(self, point):
+        return True  # Mocked collidepoint method always returns True
+
 # Mock necessary Pygame functionalities
 @patch('pygame.display.set_mode', Mock())
 @patch('pygame.image.load', Mock(return_value=Mock(convert=Mock(return_value=Mock()))))
@@ -10,17 +15,13 @@ import pygame
 @patch('pygame.mixer.music.load', Mock())
 @patch('pygame.mixer.music.play', Mock())
 @patch('pygame.mixer.Sound', Mock())
-@patch('pygame.time.set_timer')
-@patch('pygame.event.get')
-@patch('pygame.Rect.collidepoint', Mock(return_value=True))  # Mock collidepoint method
+@patch('pygame.time.set_timer', Mock())
+@patch('pygame.event.get', Mock())
 
 def setUpModule():
     # Import Main after mocks are set up
-    pygame.mixer.init()
     global Main
     import Main
-
-    pygame.Rect.collidepoint = Mock(return_value=True)
 
 
 class TestMainGame(unittest.TestCase):
