@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
-with patch('pygame.mixer.init'):
-    import pygame
+import pygame
+with patch('pygame.mixer.init', Mock()), patch('pygame.mixer.music.load', Mock()):
     import Main
 
 
