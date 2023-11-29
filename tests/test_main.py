@@ -36,11 +36,14 @@ class TestMainGame(unittest.TestCase):
 
         # Test mouse event
         input_text, input_box_active = Main.handle_input_events(event_mouse, "", False, input_box_rect)
+        print(f"Mouse event: input_text={input_text}, input_box_active={input_box_active}")
         self.assertTrue(input_box_active)
 
         # Test key event
         input_text, input_box_active = Main.handle_input_events(event_key, "", True, input_box_rect)
+        print(f"Key event: input_text={input_text}, input_box_active={input_box_active}")
         self.assertEqual(input_text, "a")
+
 
     @patch('pygame.mouse.get_pos')
     @patch('pygame.mouse.get_pressed')
