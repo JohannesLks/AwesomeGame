@@ -10,6 +10,9 @@ import pygame
 @patch('pygame.mixer.music.load', Mock())
 @patch('pygame.mixer.music.play', Mock())
 @patch('pygame.mixer.Sound', Mock())
+@patch('pygame.time.set_timer')
+@patch('pygame.event.get')
+@patch('pygame.Rect.collidepoint', Mock(return_value=True))  # Mock collidepoint method
 
 def setUpModule():
     # Import Main after mocks are set up
