@@ -188,7 +188,11 @@ def show_start_screen(screen):
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     try:
         if random.randint(1, ENEMY_SPAWN_RATE) == 1:
-            enemy = GameSpriteFactory.create_enemy("standard")
+            try:
+                enemy = GameSpriteFactory.create_enemy("standard")
+                enemy = GameSpriteFactory.create_enemy("advanced")
+            except TypeError as e:
+                print(f"TypeError occurred: {e}")
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
@@ -475,7 +479,13 @@ def main_game(player_name):
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
                 for enemy in hit_enemies:
                     if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
-                        player.money += enemy.money_value  # Update the player's money
+                        try:
+                            player.score += enemy.score_value  # Update the player's money
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            running = False
                     burger.kill()
 
 
