@@ -120,8 +120,8 @@ class BaseEnemy(pygame.sprite.Sprite):
     def __init__(self, enemy_image, speed, *args, **kwargs):
         self.hitpoints = kwargs.pop('hitpoints', 1)  # Extract hitpoints and remove it from kwargs
         self.destroy_sound = kwargs.pop('destroy_sound', None)  # Extract destroy_sound and remove it from kwargs
-        self.score_value = kwargs.pop('score_value', 10)
-        super().__init__(*args, **kwargs)
+        self.score_value = kwargs.pop('score_value', 10)  # Extract score_value
+        super().__init__()
         starting_side = random.choice(['left', 'right'])
         self.original_image = enemy_image
         self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
@@ -138,28 +138,25 @@ class BaseEnemy(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.speed * self.direction
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
-            self.kill() 
+            self.kill()
+            return True
 
     def take_damage(self, damage):
-        try:
             self.hitpoints -= damage
             if self.hitpoints <= 0:
+                if self.destroy_sound:
+                    pygame.mixer.Sound(self.destroy_sound).play()
                 self.kill()
                 return True
             return False
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            running = False
     
 class StandardEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=enemy_image, speed=ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, destroy_sound=STANDARD_DESTROY_SOUND, *args, **kwargs)
+        super().__init__(enemy_image=enemy_image, speed=ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
 
 class AdvancedEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, hitpoints=ADVANCED_HITPOINTS, destroy_sound=ADVANCED_DESTROY_SOUND, *args, **kwargs)
+        super().__init__(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, hitpoints=ADVANCED_HITPOINTS, destroy_sound=ADVANCED_DESTROY_SOUND, score_value=ADVANCED_ENEMY_SCORE_VALUE, *args, **kwargs)
 
 
 # Burger class

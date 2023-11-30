@@ -5,7 +5,6 @@ import os
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
-ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 ENEMY_SPEED = 1
@@ -29,10 +28,12 @@ half_button_width = BUTTON_WIDTH // 2
 STANDARD_HITPOINTS = 1
 ENEMY_SPEED = 1
 STANDARD_ENEMY_SCORE_VALUE = 10
+STANDARD_ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 #Advanced
 ADVANCED_ENEMY_SPEED = 0.5
 ADVANCED_HITPOINTS = 5
 ADVANCED_ENEMY_SCORE_VALUE = 100
+ADVANCED_ENEMY_SPAWN_RATE = 1000  # Lower number means more frequent spawns
 
 
 #Burgers
@@ -44,6 +45,7 @@ WAVE_DURATION = 30000
 BREAK_DURATION = 3000
 in_between_waves = False
 wave_start_time = 0
+
 
 # Define colors
 WHITE = (255, 255, 255)
