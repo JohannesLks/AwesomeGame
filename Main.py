@@ -9,6 +9,7 @@ from datetime import datetime
 from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
+import pygame
 
 running = True
 # Initialize pygame
@@ -187,12 +188,18 @@ def show_start_screen(screen):
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     try:
-        if random.randint(1, ENEMY_SPAWN_RATE) == 1:
-            try:
-                enemy = GameSpriteFactory.create_enemy("standard")
-                enemy = GameSpriteFactory.create_enemy("advanced")
-            except TypeError as e:
-                print(f"TypeError occurred: {e}")
+        if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
+            # Randomly choose between "standard" and "advanced" enemy types
+            enemy = GameSpriteFactory.create_enemy("standard")
+
+            # Adjust spawning position to be above the bottom buffer zone
+            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
+            enemy_group.add(enemy)
+
+        if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
+            # Randomly choose between "standard" and "advanced" enemy types)
+            enemy = GameSpriteFactory.create_enemy("advanced")
+
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
@@ -449,7 +456,7 @@ def main_game(player_name):
                 # Gegner und Power-Ups spawnen, wenn keine Pause ist
                 spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
                 spawn_power_ups(power_ups, player.rect, shooting_area)
-            # ...
+
                 
             for enemy in list(enemies):  # Make a copy of the group list to iterate over
                 enemy_off_screen = enemy.update()
@@ -476,7 +483,7 @@ def main_game(player_name):
 
             for burger in burgers:
                 # Check for collision with enemies as usual
-                hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
+                hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
                 for enemy in hit_enemies:
                     if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
                         try:
@@ -498,12 +505,6 @@ def main_game(player_name):
             for event in pygame.event.get():
                 if event.type == AMMO_REGEN_EVENT:
                     regenerate_ammo(player)
-        
-
-            # Spawn enemies and power-ups
-            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
-
-            spawn_power_ups(power_ups, player.rect, shooting_area)
 
 
             # Drawing everything on the screen
@@ -561,12 +562,19 @@ def game_intro():
         running = False
 
 def next_wave(enemies):
-    global current_wave, in_between_waves, wave_start_time, ENEMY_SPAWN_RATE
-    current_wave += 1
-    ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
-    in_between_waves = False
-    wave_start_time = pygame.time.get_ticks()
-    enemies.empty()  # Clear all existing enemies at the start of the new wave
+    try:
+        global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
+        current_wave += 1
+        STANDARD_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
+        ADVANCED_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
+        in_between_waves = False
+        wave_start_time = pygame.time.get_ticks()
+        enemies.empty()  # Clear all existing enemies at the start of the new wave
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        running = False 
 
 # Funktion zur Anzeige einer Nachricht zwischen den Wellen
 
