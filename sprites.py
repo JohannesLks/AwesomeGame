@@ -3,7 +3,11 @@ import random
 from settings import *
 
 player_images = [pygame.image.load(f'media/mr_krabs{i}.png') for i in range(4)]
-enemy_image = pygame.image.load('media/fish.png')
+enemy_images = {'enemy_type_1': pygame.image.load('media/fish.png'),
+                'enemy_type_2': pygame.image.load('media/fish2.png'),
+                #'enemy_type_3': pygame.image.load('media/fish4.png'),
+                #'enemy_type_4': pygame.image.load('media/fish5.png')
+}
 burger_image = pygame.image.load('media/burger.png')
 blocker_image = pygame.image.load('media/plankton.png')
 power_up_images = {
@@ -38,7 +42,7 @@ class GameSpriteFactory(SpriteFactory):
 
     @staticmethod
     def create_enemy(*args, **kwargs):
-        return Enemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+        return Enemy(enemy_images=enemy_images, speed=ENEMY_SPEED, *args, **kwargs)
 
     @staticmethod
     def create_burger(x, y, *args, **kwargs):
@@ -106,10 +110,11 @@ class Player(pygame.sprite.Sprite):
 
 # Enemy class
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, enemy_image, speed, *args, **kwargs):
+    def __init__(self, enemy_images, speed, *args, **kwargs):
         super().__init__(*args, **kwargs)
         starting_side = random.choice(['left', 'right'])
-        self.original_image = enemy_img
+        enemy_type = random.choice(['enemy_type_1', 'enemy_type_2'])
+        self.original_image = enemy_images[enemy_type]
         self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()
         if starting_side == 'left':
