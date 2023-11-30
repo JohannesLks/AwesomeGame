@@ -392,7 +392,7 @@ def game_over_screen(screen, score, player_name):
         screen.blit(title_surf, title_rect)
 
         # Display the player's score
-        score_surf = regular_font.render(f'Your Score: {score}', True, RED)
+        score_surf = regular_font.render(f'Money $: {score}', True, RED)
         score_rect = score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150))
         screen.blit(score_surf, score_rect)
 
@@ -520,7 +520,7 @@ def main_game(player_name):
 
             # Display the score
             font = pygame.font.SysFont(None, 36)
-            score_text = font.render(f'Money: {player.score}', True, GREEN)
+            score_text = font.render(f'Money $: {player.score}', True, GREEN)
             screen.blit(score_text, (10, 10))
 
             # Display the health
