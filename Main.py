@@ -456,7 +456,7 @@ def main_game(player_name):
                 # Gegner und Power-Ups spawnen, wenn keine Pause ist
                 spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
                 spawn_power_ups(power_ups, player.rect, shooting_area)
-            # ...
+
                 
             for enemy in list(enemies):  # Make a copy of the group list to iterate over
                 enemy_off_screen = enemy.update()
@@ -487,7 +487,6 @@ def main_game(player_name):
                 for enemy in hit_enemies:
                     if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
                         try:
-                            print(enemy.score_value)
                             player.score += enemy.score_value  # Update the player's money
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -506,12 +505,6 @@ def main_game(player_name):
             for event in pygame.event.get():
                 if event.type == AMMO_REGEN_EVENT:
                     regenerate_ammo(player)
-        
-
-            # Spawn enemies and power-ups
-            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
-
-            spawn_power_ups(power_ups, player.rect, shooting_area)
 
 
             # Drawing everything on the screen

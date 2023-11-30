@@ -8,7 +8,7 @@ PLAYER_SPEED = 5
 POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
 ENEMY_SPEED = 1
-BLOCKER_SPAWN_RATE = 10000
+BLOCKER_SPAWN_RATE = 1000
 
 # Define a constant for how much the enemy spawn rate should increase with each wave
 ENEMY_SPAWN_INCREMENT = 10  # This means with each wave, the spawn rate will increase by 10
@@ -33,7 +33,7 @@ STANDARD_ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 ADVANCED_ENEMY_SPEED = 0.5
 ADVANCED_HITPOINTS = 5
 ADVANCED_ENEMY_SCORE_VALUE = 100
-ADVANCED_ENEMY_SPAWN_RATE = 1000  # Lower number means more frequent spawns
+ADVANCED_ENEMY_SPAWN_RATE = 600  # Lower number means more frequent spawns
 
 
 #Burgers
