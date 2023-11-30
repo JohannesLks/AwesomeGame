@@ -42,16 +42,45 @@ class TestMainGame(unittest.TestCase):
         self.assertTrue(clicked)
         self.assertEqual(button_rect.topleft, (100, 100))
 
+class TestSpawnEnemies(unittest.TestCase):
+
     @patch('random.randint')
-    def test_spawn_enemies(self, mock_randint):
+    def test_spawn_standard_enemy(self, mock_randint):
         mock_randint.return_value = 1  # Mock to always spawn an enemy
 
-        enemy_group = pygame.sprite.Group()
-        blocker_group = pygame.sprite.Group()
-        player_rect = pygame.Rect(100, 100, 50, 50)
-        shooting_area = {'top': 0, 'bottom': 500, 'left': 0, 'right': 800}
+        enemy_group = Mock()
+        blocker_group = Mock()
+        player_rect = Mock()
+        shooting_area = {'top': 0, 'bottom': 500}
 
         Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
-        self.assertEqual(len(enemy_group), 1)
+
+        enemy_group.add.assert_called_once()
+
+    @patch('random.randint')
+    def test_spawn_advanced_enemy(self, mock_randint):
+        mock_randint.return_value = 2  # Mock to spawn an advanced enemy
+
+        enemy_group = Mock()
+        blocker_group = Mock()
+        player_rect = Mock()
+        shooting_area = {'top': 0, 'bottom': 500}
+
+        Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
+
+        enemy_group.add.assert_called_once()
+
+    @patch('random.randint')
+    def test_spawn_blocker(self, mock_randint):
+        mock_randint.return_value = 1  # Mock to spawn a blocker
+
+        enemy_group = Mock()
+        blocker_group = Mock()
+        player_rect = Mock()
+        shooting_area = {'top': 0, 'bottom': 500}
+
+        Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
+
+        blocker_group.add.assert_called_once()
 if __name__ == '__main__':
     unittest.main()
