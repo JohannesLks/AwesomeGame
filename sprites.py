@@ -188,7 +188,7 @@ class PowerUp(pygame.sprite.Sprite):
 
 class Blocker(pygame.sprite.Sprite):
     def __init__(self, player_x, top, bottom, blocker_image, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.image = blocker_image
         self.rect = self.image.get_rect(center=(player_x, random.randint(top, bottom)))
         self.mask = pygame.mask.from_surface(self.image)
