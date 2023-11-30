@@ -3,10 +3,11 @@ import random
 from settings import *
 
 player_images = [pygame.image.load(f'media/mr_krabs{i}.png') for i in range(4)]
-enemy_images = {'enemy_type_1': pygame.image.load('media/fish.png'),
+enemy_images = {'enemy_type_1': pygame.image.load('media/fish1.png'),
                 'enemy_type_2': pygame.image.load('media/fish2.png'),
-                #'enemy_type_3': pygame.image.load('media/fish4.png'),
-                #'enemy_type_4': pygame.image.load('media/fish5.png')
+                'enemy_type_3': pygame.image.load('media/fish3.png'),
+                'enemy_type_4': pygame.image.load('media/fish4.png'),
+                'enemy_type_5': pygame.image.load('media/fish5.png')
 }
 burger_image = pygame.image.load('media/burger.png')
 blocker_image = pygame.image.load('media/plankton.png')
@@ -113,7 +114,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, enemy_images, speed, *args, **kwargs):
         super().__init__(*args, **kwargs)
         starting_side = random.choice(['left', 'right'])
-        enemy_type = random.choice(['enemy_type_1', 'enemy_type_2'])
+        enemy_type = random.choice(['enemy_type_1', 'enemy_type_2', 'enemy_type_3', 'enemy_type_4', 'enemy_type_5'])
         self.original_image = enemy_images[enemy_type]
         self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()

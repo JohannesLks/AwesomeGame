@@ -59,7 +59,7 @@ POWER_UPS_ATTRIBUTES = {
 }
 
 # Load game assets
-enemy_img = pygame.image.load('media/fish.png')
+enemy_img = pygame.image.load('media/fish1.png')
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
 welcome_background_img = pygame.image.load('media/menu.png')
