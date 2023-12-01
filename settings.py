@@ -60,15 +60,15 @@ DARK_BLUE = (0, 0, 139)  # An example color for the active state
 # This dictionary maps power-up types to their images and attributes
 POWER_UPS_ATTRIBUTES = {
     'score_boost': {
-        'image': 'media/boost.png',
+        'image': 'media/moneyboost.png',
         'effect': lambda player: setattr(player, 'score', player.score + 50)
     },
     'ammo_boost': {
-        'image': 'media/boost.png',
+        'image': 'media/ammoboost.png',
         'effect': lambda player: player.activate_ammo_boost()  # This will be a new method in the Player class
     },
     'health_boost': {
-        'image': 'media/boost.png',
+        'image': 'media/healthboost.png',
         'effect': lambda player: setattr(player, 'health', player.health + 20)
     },
 

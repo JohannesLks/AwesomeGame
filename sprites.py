@@ -13,9 +13,9 @@ advanced_enemy_image = pygame.image.load('media/fish2.png')
 burger_image = pygame.image.load('media/burger.png')
 blocker_image = pygame.image.load('media/Plankton.png')
 power_up_images = {
-    'score_boost': pygame.image.load('media/boost.png'),
-    'ammo_boost': pygame.image.load('media/boost.png'),
-    'health_boost': pygame.image.load('media/boost.png'),
+    'score_boost': pygame.image.load('media/moneyboost.png'),
+    'ammo_boost': pygame.image.load('media/ammoboost.png'),
+    'health_boost': pygame.image.load('media/healthboost.png'),
 }
 
 # Abstract Factory Interface
@@ -180,11 +180,13 @@ class PowerUp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))
         self.effect = POWER_UPS_ATTRIBUTES[power_up_type]['effect']
         self.spawn_time = pygame.time.get_ticks()
+        self.destroy_sound = kwargs.pop('destroy_sound', None)
 
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.spawn_time > 4000:  # 4000 milliseconds = 4 seconds
             self.kill()
+
 
 class Blocker(pygame.sprite.Sprite):
     def __init__(self, player_x, top, bottom, *args, **kwargs):
