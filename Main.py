@@ -45,7 +45,7 @@ BACKGROUND_MUSIC = 'media/background_music.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
-
+bubble = pygame.mixer.Sound("media/bubble.mp3")
 # Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
@@ -477,10 +477,10 @@ def main_game(player_name):
 
             # Collision detection with power-ups
             for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
-                hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
+                hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
                 for power_up in hit_power_ups:
-                    power_up.effect(player)  # Apply the effect of the power-up
-
+                    power_up.effect(player)  # Apply the effect of the power
+                    pygame.mixer.Sound.play(bubble)
             for burger in burgers:
                 # Check for collision with enemies as usual
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
