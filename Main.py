@@ -9,6 +9,7 @@ from datetime import datetime
 from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
+import pygame
 
 running = True
 # Initialize pygame
@@ -41,12 +42,10 @@ REGULAR_FONT = pygame.font.SysFont(None, 36)
 
 # Sound effects
 BACKGROUND_MUSIC = 'media/background_music.mp3'
-MONEY_SOUND = 'media/money_sound.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
-money_sound = pygame.mixer.Sound(MONEY_SOUND)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
-
+bubble = pygame.mixer.Sound("media/bubble.mp3")
 # Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
@@ -191,8 +190,18 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     max_blockers = 8 # Limited amount of blockers, otherwise game tends to become unplayable
     global BLOCKER_COUNT
     try:
-        if random.randint(1, ENEMY_SPAWN_RATE) == 1:
-            enemy = GameSpriteFactory.create_enemy()
+        if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
+            # Randomly choose between "standard" and "advanced" enemy types
+            enemy = GameSpriteFactory.create_enemy("standard")
+
+            # Adjust spawning position to be above the bottom buffer zone
+            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
+            enemy_group.add(enemy)
+
+        if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
+            # Randomly choose between "standard" and "advanced" enemy types)
+            enemy = GameSpriteFactory.create_enemy("advanced")
+
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
@@ -451,7 +460,7 @@ def main_game(player_name):
                 # Gegner und Power-Ups spawnen, wenn keine Pause ist
                 spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
                 spawn_power_ups(power_ups, player.rect, shooting_area)
-            # ...
+
                 
             for enemy in list(enemies):  # Make a copy of the group list to iterate over
                 enemy_off_screen = enemy.update()
@@ -472,16 +481,23 @@ def main_game(player_name):
 
             # Collision detection with power-ups
             for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
-                hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_mask)
+                hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
                 for power_up in hit_power_ups:
-                    power_up.effect(player)  # Apply the effect of the power-up
-
+                    power_up.effect(player)  # Apply the effect of the power
+                    pygame.mixer.Sound.play(bubble)
             for burger in burgers:
                 # Check for collision with enemies as usual
-                hit_enemies = pygame.sprite.spritecollide(burger, enemies, True, pygame.sprite.collide_mask)
+                hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
                 for enemy in hit_enemies:
+                    if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
+                        try:
+                            player.score += enemy.score_value  # Update the player's money
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
+                            running = False
                     burger.kill()
-                    player.score += 10  # Increase the score as usual
 
 
                 hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
@@ -493,12 +509,6 @@ def main_game(player_name):
             for event in pygame.event.get():
                 if event.type == AMMO_REGEN_EVENT:
                     regenerate_ammo(player)
-        
-
-            # Spawn enemies and power-ups
-            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
-
-            spawn_power_ups(power_ups, player.rect, shooting_area)
 
 
             # Drawing everything on the screen
@@ -514,7 +524,7 @@ def main_game(player_name):
 
             # Display the score
             font = pygame.font.SysFont(None, 36)
-            score_text = font.render(f'Money $: {player.score}', True, BLUE)
+            score_text = font.render(f'Money $: {player.score}', True, GREEN)
             screen.blit(score_text, (10, 10))
 
             # Display the health
@@ -522,7 +532,7 @@ def main_game(player_name):
             screen.blit(health_text, (10, 50))
         
             # Display the ammunation
-            ammo_text = font.render(f'Burger: {player.ammo}', True, GREEN)
+            ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
             screen.blit(ammo_text, (10, 80))
 
             # Update the display
@@ -556,12 +566,19 @@ def game_intro():
         running = False
 
 def next_wave(enemies):
-    global current_wave, in_between_waves, wave_start_time, ENEMY_SPAWN_RATE
-    current_wave += 1
-    ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
-    in_between_waves = False
-    wave_start_time = pygame.time.get_ticks()
-    enemies.empty()  # Clear all existing enemies at the start of the new wave
+    try:
+        global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
+        current_wave += 1
+        STANDARD_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
+        ADVANCED_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
+        in_between_waves = False
+        wave_start_time = pygame.time.get_ticks()
+        enemies.empty()  # Clear all existing enemies at the start of the new wave
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        running = False 
 
 # Funktion zur Anzeige einer Nachricht zwischen den Wellen
 

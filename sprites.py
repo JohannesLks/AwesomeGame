@@ -1,15 +1,21 @@
 import pygame
 import random
 from settings import *
+import sys
+import os
+pygame.mixer.init()
+STANDARD_DESTROY_SOUND = 'media/money.mp3'
+ADVANCED_DESTROY_SOUND = 'media/money.mp3'
 
 player_images = [pygame.image.load(f'media/mr_krabs{i}.png') for i in range(4)]
 enemy_image = pygame.image.load('media/fish.png')
+advanced_enemy_image = pygame.image.load('media/fish2.png')
 burger_image = pygame.image.load('media/burger.png')
-blocker_image = pygame.image.load('media/plankton.png')
+blocker_image = pygame.image.load('media/Plankton.png')
 power_up_images = {
-    'score_boost': pygame.image.load('media/boost.png'),
-    'ammo_boost': pygame.image.load('media/boost.png'),
-    'health_boost': pygame.image.load('media/boost.png'),
+    'score_boost': pygame.image.load('media/moneyboost.png'),
+    'ammo_boost': pygame.image.load('media/ammoboost.png'),
+    'health_boost': pygame.image.load('media/healthboost.png'),
 }
 
 # Abstract Factory Interface
@@ -37,8 +43,13 @@ class GameSpriteFactory(SpriteFactory):
         return Player(player_images=player_images, speed=PLAYER_SPEED, *args, **kwargs)
 
     @staticmethod
-    def create_enemy(*args, **kwargs):
-        return Enemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+    def create_enemy(enemy_type, *args, **kwargs):
+        if enemy_type == "standard":
+            return StandardEnemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+        elif enemy_type == "advanced":
+            return AdvancedEnemy(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, *args, **kwargs)
+        else:
+            raise ValueError("Unknown enemy type")
 
     @staticmethod
     def create_burger(x, y, *args, **kwargs):
@@ -105,11 +116,14 @@ class Player(pygame.sprite.Sprite):
             self.ammo_boost_active = False
 
 # Enemy class
-class Enemy(pygame.sprite.Sprite):
+class BaseEnemy(pygame.sprite.Sprite):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.hitpoints = kwargs.pop('hitpoints', 1)  # Extract hitpoints and remove it from kwargs
+        self.destroy_sound = kwargs.pop('destroy_sound', None)  # Extract destroy_sound and remove it from kwargs
+        self.score_value = kwargs.pop('score_value', 10)  # Extract score_value
+        super().__init__()
         starting_side = random.choice(['left', 'right'])
-        self.original_image = enemy_img
+        self.original_image = enemy_image
         self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()
         if starting_side == 'left':
@@ -126,7 +140,24 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
             return True
-        return False
+
+    def take_damage(self, damage):
+            self.hitpoints -= damage
+            if self.hitpoints <= 0:
+                if self.destroy_sound:
+                    pygame.mixer.Sound(self.destroy_sound).play()
+                self.kill()
+                return True
+            return False
+    
+class StandardEnemy(BaseEnemy):
+    def __init__(self, enemy_image, speed, *args, **kwargs):
+        super().__init__(enemy_image=enemy_image, speed=ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
+
+class AdvancedEnemy(BaseEnemy):
+    def __init__(self, enemy_image, speed, *args, **kwargs):
+        super().__init__(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, hitpoints=ADVANCED_HITPOINTS, destroy_sound=ADVANCED_DESTROY_SOUND, score_value=ADVANCED_ENEMY_SCORE_VALUE, *args, **kwargs)
+
 
 # Burger class
 class Burger(pygame.sprite.Sprite):
@@ -149,16 +180,18 @@ class PowerUp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, y))
         self.effect = POWER_UPS_ATTRIBUTES[power_up_type]['effect']
         self.spawn_time = pygame.time.get_ticks()
+        self.destroy_sound = kwargs.pop('destroy_sound', None)
 
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.spawn_time > 4000:  # 4000 milliseconds = 4 seconds
             self.kill()
 
+
 class Blocker(pygame.sprite.Sprite):
-    def __init__(self, player_x, top, bottom, blocker_image, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.image = blocker_image
+    def __init__(self, player_x, top, bottom, *args, **kwargs):
+        super().__init__()
+        self.image =  kwargs.pop('blocker_image')
         self.rect = self.image.get_rect(center=(player_x, random.randint(top, bottom)))
         self.mask = pygame.mask.from_surface(self.image)
         self.spawn_time = pygame.time.get_ticks()
