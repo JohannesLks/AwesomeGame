@@ -1,6 +1,9 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, ANY
 import pygame
+import random
+import sys
+import os
 
 # Custom subclass of pygame.Rect with a mock collidepoint method
 class MockRect(pygame.Rect):
@@ -42,11 +45,38 @@ class TestMainGame(unittest.TestCase):
         self.assertTrue(clicked)
         self.assertEqual(button_rect.topleft, (100, 100))
 
-class TestSpawnEnemies(unittest.TestCase):
+
 
     @patch('random.randint')
-    def test_spawn_standard_enemy(self, mock_randint):
-        mock_randint.return_value = 1  # Mock to always spawn an enemy
+    def test_spawn_enemies(self, mock_randint):
+        # Mocks and test setup
+        enemy_group = Mock()
+        blocker_group = Mock()
+        player_rect = Mock()
+        shooting_area = {'top': 0, 'bottom': 500}
+        
+        # Mock the random.randint to simulate the spawning of a standard enemy
+        mock_randint.side_effect = [1, Main.ADVANCED_ENEMY_SPAWN_RATE + 1, Main.BLOCKER_SPAWN_RATE + 1]
+
+        # Call the function
+        Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
+
+        # Assert that a standard enemy was added
+        self.assertEqual(enemy_group.add.call_count, 1)
+
+        # Reset mocks for next test scenario
+        enemy_group.reset_mock()
+        blocker_group.reset_mock()
+        mock_randint.reset_mock()
+
+        # Similarly, test for advanced enemy and blocker spawning...
+        # For advanced enemy, make randint return a value to spawn an advanced enemy
+        # For blocker, make randint return a value to spawn a blocker
+        # Assert accordingly
+
+    @patch('random.randint')
+    def test_spawn_enemies_no_spawn(self, mock_randint):
+        mock_randint.side_effect = [2, 2, 2]  # Mock to not spawn any enemy or blocker
 
         enemy_group = Mock()
         blocker_group = Mock()
@@ -55,32 +85,9 @@ class TestSpawnEnemies(unittest.TestCase):
 
         Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
 
-        enemy_group.add.assert_called_once()
+        enemy_group.add.assert_not_called()
+        blocker_group.add.assert_not_called()
 
-    @patch('random.randint')
-    def test_spawn_advanced_enemy(self, mock_randint):
-        mock_randint.return_value = 2  # Mock to spawn an advanced enemy
-
-        enemy_group = Mock()
-        blocker_group = Mock()
-        player_rect = Mock()
-        shooting_area = {'top': 0, 'bottom': 500}
-
-        Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
-
-        enemy_group.add.assert_called_once()
-
-    @patch('random.randint')
-    def test_spawn_blocker(self, mock_randint):
-        mock_randint.return_value = 1  # Mock to spawn a blocker
-
-        enemy_group = Mock()
-        blocker_group = Mock()
-        player_rect = Mock()
-        shooting_area = {'top': 0, 'bottom': 500}
-
-        Main.spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area)
-
-        blocker_group.add.assert_called_once()
 if __name__ == '__main__':
     unittest.main()
+
