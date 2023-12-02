@@ -152,6 +152,9 @@ def show_start_screen(screen):
                     quit_button_rect, quit_button_clicked = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
                     if quit_button_rect.collidepoint(event.pos):
                         running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        main_game(input_text)
                 # Handle input events for the input box
                 input_text, input_box_active = handle_input_events(event, input_text, input_box_active, input_box_rect)
 
