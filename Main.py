@@ -468,7 +468,10 @@ def main_game(player_name):
             for enemy in list(enemies):  # Make a copy of the group list to iterate over
                 enemy_off_screen = enemy.update()
                 if enemy_off_screen:
-                    player.health -= 10  # Decrease health when enemy reaches the edge
+                    if isinstance(enemy, AdvancedEnemy):
+                        player.health -= 30
+                    elif isinstance(enemy, StandardEnemy):
+                        player.health -= 10
                     if player.health <= 0:
                         game_over_screen(screen, player.score, player_name)
                         running = False  # End the game if health is depleted
