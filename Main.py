@@ -46,6 +46,7 @@ pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
+game_over = pygame.mixer.Sound(game_over_sound)
 # Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
@@ -369,12 +370,19 @@ def game_over_screen(screen, score, player_name):
     start_button_rect = pygame.Rect(start_button_x, start_button_y, start_button_img.get_width(), start_button_img.get_height())
 
     running = True
+    pygame.mixer.music.stop()
+    game_over.play()
+    pygame.mixer.music.load(game_over_music)
+    pygame.mixer.music.play(-1)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button_rect.collidepoint(event.pos):
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.load(BACKGROUND_MUSIC)
+                    pygame.mixer.music.play(-1)
                     main_game(player_name)
                     running = False
 
@@ -490,7 +498,7 @@ def main_game(player_name):
                 hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
                 for power_up in hit_power_ups:
                     power_up.effect(player)  # Apply the effect of the power
-                    pygame.mixer.Sound.play(bubble)
+                    bubble.play()
             for burger in burgers:
                 # Check for collision with enemies as usual
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
