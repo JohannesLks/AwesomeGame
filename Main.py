@@ -583,8 +583,9 @@ def next_wave(enemies):
     try:
         global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
         current_wave += 1
-        STANDARD_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
-        ADVANCED_ENEMY_SPAWN_RATE += ENEMY_SPAWN_INCREMENT  # Increase linearly
+        if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
+            STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
+            ADVANCED_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
         in_between_waves = False
         wave_start_time = pygame.time.get_ticks()
         enemies.empty()  # Clear all existing enemies at the start of the new wave
