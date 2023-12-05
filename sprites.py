@@ -45,7 +45,7 @@ class GameSpriteFactory(SpriteFactory):
     @staticmethod
     def create_enemy(enemy_type, *args, **kwargs):
         if enemy_type == "standard":
-            return StandardEnemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+            return StandardEnemy(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, *args, **kwargs)
         elif enemy_type == "advanced":
             return AdvancedEnemy(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, *args, **kwargs)
         else:
@@ -151,7 +151,7 @@ class BaseEnemy(pygame.sprite.Sprite):
     
 class StandardEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=enemy_image, speed=ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
+        super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
 
 class AdvancedEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
