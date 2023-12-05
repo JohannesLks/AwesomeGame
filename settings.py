@@ -13,7 +13,7 @@ BLOCKER_COUNT = 0
 
 
 # Define a constant for how much the enemy spawn rate should increase with each wave
-ENEMY_SPAWN_INCREMENT = 10  # This means with each wave, the spawn rate will increase by 10
+ENEMY_SPAWN_INCREMENT = 20  # Wert um den die Spawnrate jede Wave verringert wird - je weniger, desto mehr Spawns
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 INPUT_WIDTH = 200
