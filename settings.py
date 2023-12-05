@@ -91,3 +91,4 @@ adventure_font_path = 'media/font_dungeon_quest.ttf'
 blocker_img = pygame.image.load('media/Plankton.png')
 
 THROW_SOUND = 'media/throw.mp3'
+WALK_SOUND = 'media/walk.mp3'
