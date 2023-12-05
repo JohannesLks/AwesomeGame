@@ -1,4 +1,4 @@
-# Import necessary modules
+# Import der benötigten Module
 import pygame
 import random
 import sys
