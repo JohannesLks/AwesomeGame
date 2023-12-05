@@ -45,7 +45,7 @@ class GameSpriteFactory(SpriteFactory):
     @staticmethod
     def create_enemy(enemy_type, *args, **kwargs):
         if enemy_type == "standard":
-            return StandardEnemy(enemy_image=enemy_image, speed=ENEMY_SPEED, *args, **kwargs)
+            return StandardEnemy(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, *args, **kwargs)
         elif enemy_type == "advanced":
             return AdvancedEnemy(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, *args, **kwargs)
         else:
@@ -122,21 +122,21 @@ class BaseEnemy(pygame.sprite.Sprite):
         self.destroy_sound = kwargs.pop('destroy_sound', None)  # Extract destroy_sound and remove it from kwargs
         self.score_value = kwargs.pop('score_value', 10)  # Extract score_value
         super().__init__()
-        starting_side = random.choice(['left', 'right'])
+        self.starting_side = random.choice(['left', 'right'])
         self.original_image = enemy_image
-        self.image = pygame.transform.flip(self.original_image, True, False) if starting_side == 'left' else self.original_image
+        self.image = pygame.transform.flip(self.original_image, True, False) if self.starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()
-        if starting_side == 'left':
+        self.speed = speed
+        if self.starting_side == 'left':
             self.rect.x = -self.rect.width
-            self.direction = 1
+            self.speed = abs(self.speed)
         else:
             self.rect.x = SCREEN_WIDTH
-            self.direction = -1
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
-        self.speed = ENEMY_SPEED
+            self.speed = -abs(self.speed)
+        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)        
 
     def update(self):
-        self.rect.x += self.speed * self.direction
+        self.rect.x += self.speed
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
             return True
@@ -148,11 +148,10 @@ class BaseEnemy(pygame.sprite.Sprite):
                     pygame.mixer.Sound(self.destroy_sound).play()
                 self.kill()
                 return True
-            return False
     
 class StandardEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=enemy_image, speed=ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
+        super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
 
 class AdvancedEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
