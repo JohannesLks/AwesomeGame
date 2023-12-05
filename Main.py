@@ -12,24 +12,23 @@ from sprites import GameSpriteFactory
 import pygame
 
 running = True
-# Initialize pygame
+# Initialisieren von Pygame
 pygame.init()
 size = (1000, 563)
 
-# Set up the display without any frame
+# Display ohne Rand erstellen
 screen = pygame.display.set_mode(size, pygame.NOFRAME)
 
-# Load the image you want to display
+# Ladebildschirm zuweisen
 start_image = pygame.image.load('media/loading_screen.png').convert()
 
-# Display the image for 3 seconds
+# Ladebildschirm für 3 Sekunden anzeigen
 screen.blit(start_image, (0, 0))
 pygame.display.flip()  # Update the display
 pygame.time.wait(3000)  # Wait for 3000 milliseconds
 
-# Reinitialize the display with a frame for the main game
+# Display initialisieren für das Spiel (ohne Rand)
 pygame.display.set_mode(size)
-
 pygame.font.init()
 font = pygame.font.SysFont('arial', 32) 
 custom_font = pygame.font.Font(adventure_font_path, 48)
@@ -40,7 +39,7 @@ BIG_FONT = pygame.font.SysFont(None, 80)
 REGULAR_FONT = pygame.font.SysFont(None, 36)
 
 
-# Sound effects
+# Soundeffekte
 BACKGROUND_MUSIC = 'media/background_music.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
