@@ -132,15 +132,13 @@ class BaseEnemy(pygame.sprite.Sprite):
         else:
             self.rect.x = SCREEN_WIDTH
             self.speed = -abs(self.speed)
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)   
-        # Anpassungen für den Spawn-Bereich
-        self.initial_y = random.randint(50, SCREEN_HEIGHT - 50 - self.rect.height)  # Stellen Sie sicher, dass der Wert innerhalb der Grenzen bleibt
-        self.rect.y = self.initial_y
-
+        self.initial_y = random.randint(0, SCREEN_HEIGHT - self.rect.height)   
         # Additional attributes for sine wave movement
         self.sine_wave_amplitude = 10  # Adjust this value to control the height of the wave
         self.sine_wave_frequency = 0.02  # Adjust this value to control the frequency
         self.angle = 0
+
+
              
 
     def update(self):
