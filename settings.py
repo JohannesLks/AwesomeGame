@@ -7,8 +7,9 @@ SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
 POWER_UP_RATE = 200    # Lower number means more frequent power-ups
 SCORE_MULTIPLIER = 2   # For X2-Boost power-up
-BLOCKER_SPAWN_RATE = 2000 # Lower number means more frequent spawns
+BLOCKER_SPAWN_RATE = 400 # Lower number means more frequent spawns
 BLOCKER_COUNT = 0
+BLOCKER_MAXIMUM = 5 # Anzahl der Blocker auf die Zahl limitiert
 
 
 
@@ -33,7 +34,6 @@ STANDARD_ENEMY_SCORE_VALUE = 10
 STANDARD_ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
 #Advanced
 ADVANCED_ENEMY_SPEED = 1 # Speed sollte immer int sein, sonst kommt es zu Problemen, da rect.x float nicht benutzen kann -> Rundungsfehler; komische Geschwindigkeiten
-BLOCKER_SPAWN_RATE = 2000 # Lower number means more frequent spawns
 ADVANCED_HITPOINTS = 3
 ADVANCED_ENEMY_SCORE_VALUE = 100
 ADVANCED_ENEMY_SPAWN_RATE = 600  # Lower number means more frequent spawns
