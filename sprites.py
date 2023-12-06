@@ -1,8 +1,7 @@
 import pygame
 import random
 from settings import *
-import sys
-import os
+import math
 pygame.mixer.init()
 STANDARD_DESTROY_SOUND = 'media/money.mp3'
 ADVANCED_DESTROY_SOUND = 'media/money.mp3'
@@ -133,10 +132,35 @@ class BaseEnemy(pygame.sprite.Sprite):
         else:
             self.rect.x = SCREEN_WIDTH
             self.speed = -abs(self.speed)
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)        
+        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)   
+        # Anpassungen für den Spawn-Bereich
+        self.initial_y = random.randint(50, SCREEN_HEIGHT - 50 - self.rect.height)  # Stellen Sie sicher, dass der Wert innerhalb der Grenzen bleibt
+        self.rect.y = self.initial_y
+
+        # Additional attributes for sine wave movement
+        self.sine_wave_amplitude = 10  # Adjust this value to control the height of the wave
+        self.sine_wave_frequency = 0.02  # Adjust this value to control the frequency
+        self.angle = 0
+             
 
     def update(self):
+        # Update x-coordinate as before
         self.rect.x += self.speed
+
+        # Update y-coordinate based on a sine wave
+        self.rect.y = self.initial_y + self.sine_wave_amplitude * math.sin(self.sine_wave_frequency * self.rect.x)
+
+        # Berechne den Neigungswinkel basierend auf der Ableitung der Sinusfunktion
+        self.angle = math.degrees(math.atan(self.sine_wave_amplitude * self.sine_wave_frequency * math.cos(self.sine_wave_frequency * self.rect.x)))
+
+        # Spiegle und neige das Bild basierend auf der Bewegungsrichtung
+        if self.starting_side == 'left':
+            self.image = pygame.transform.flip(self.original_image, True, False)
+            self.image = pygame.transform.rotate(self.image, -self.angle)
+        else:
+            self.image = pygame.transform.rotate(self.original_image, self.angle)
+
+        # Check if the enemy is out of screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
             return True
