@@ -1,19 +1,21 @@
+#Import der benötigten Module
 import pygame
 import sys
 import os
-# Constants for the game
+
+# Spiel Konstanten
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
-POWER_UP_RATE = 200    # Lower number means more frequent power-ups
-SCORE_MULTIPLIER = 2   # For X2-Boost power-up
-BLOCKER_SPAWN_RATE = 2000 # Lower number means more frequent spawns
+POWER_UP_RATE = 200    # Eine niedrigere Zahl bedeutet häufigere Power-ups
+SCORE_MULTIPLIER = 2   # Für X2-Boost Power-up
+BLOCKER_SPAWN_RATE = 2000 # Niedrigere Zahl bedeutet häufigeres spawnen
 BLOCKER_COUNT = 0
 
-
-
-# Define a constant for how much the enemy spawn rate should increase with each wave
+# Definieren einer Konstante, um die die Spawnrate der Gegner in jeder Welle erhöht wird
 ENEMY_SPAWN_INCREMENT = 20  # Wert um den die Spawnrate jede Wave verringert wird - je weniger, desto mehr Spawns
+
+#Knopf Einstellungen
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 50
 INPUT_WIDTH = 200
@@ -25,42 +27,37 @@ BUTTON_Y_OFFSET = INPUT_BOX_Y_OFFSET + INPUT_HEIGHT + 50  # Abstand der Knöpfe 
 center_x = SCREEN_WIDTH // 2
 half_button_width = BUTTON_WIDTH // 2
 
-#Enemys
-#Standard
+#Gegner Attribute
+#Standard-Gegner
 STANDARD_ENEMY_SPEED = 2 # Speed sollte immer int sein, sonst kommt es zu Problemen, da rect.x float nicht benutzen kann -> Rundungsfehler; komische Geschwindigkeiten
 STANDARD_HITPOINTS = 1
 STANDARD_ENEMY_SCORE_VALUE = 10
-STANDARD_ENEMY_SPAWN_RATE = 200  # Lower number means more frequent spawns
-#Advanced
+STANDARD_ENEMY_SPAWN_RATE = 200  # Niedrigere Zahl bedeutet häufigeres spawnen
+#Advanced-Gegner
 ADVANCED_ENEMY_SPEED = 1 # Speed sollte immer int sein, sonst kommt es zu Problemen, da rect.x float nicht benutzen kann -> Rundungsfehler; komische Geschwindigkeiten
-BLOCKER_SPAWN_RATE = 2000 # Lower number means more frequent spawns
+BLOCKER_SPAWN_RATE = 2000 # Niedrigere Zahl bedeutet häufigeres spawnen
 ADVANCED_HITPOINTS = 3
 ADVANCED_ENEMY_SCORE_VALUE = 100
-ADVANCED_ENEMY_SPAWN_RATE = 600  # Lower number means more frequent spawns
+ADVANCED_ENEMY_SPAWN_RATE = 600  # Niedrigere Zahl bedeutet häufigeres spawnen
 
-
-#Burgers
+#Burger schaden
 BURGER_DAMAGE = 1
 
-#Waves
+#Einstellungen der Wellen
 current_wave = 1
 WAVE_DURATION = 30000
 BREAK_DURATION = 3000
 in_between_waves = False
 wave_start_time = 0
 
-
-# Define colors
+# Farben bestimmen
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
-LIGHT_BLUE = (173, 216, 230)  # An example color for the inactive state
-DARK_BLUE = (0, 0, 139)  # An example color for the active state
 
-
-# This dictionary maps power-up types to their images and attributes
+# Dieses Dictionary bestimmt die PowerUp Attribute und Bilder
 POWER_UPS_ATTRIBUTES = {
     'score_boost': {
         'image': 'media/moneyboost.png',
@@ -68,7 +65,7 @@ POWER_UPS_ATTRIBUTES = {
     },
     'ammo_boost': {
         'image': 'media/ammoboost.png',
-        'effect': lambda player: player.activate_ammo_boost()  # This will be a new method in the Player class
+        'effect': lambda player: player.activate_ammo_boost()  
     },
     'health_boost': {
         'image': 'media/healthboost.png',
@@ -77,7 +74,7 @@ POWER_UPS_ATTRIBUTES = {
 
 }
 
-# Load game assets
+# Laden der Medien
 burger_img = pygame.image.load('media/burger.png')
 background_img = pygame.image.load('media/bikini_bottom.png')
 welcome_background_img = pygame.image.load('media/menu.png')
@@ -90,6 +87,7 @@ input_bg_image = pygame.image.load('media/text_input.png')
 adventure_font_path = 'media/font_dungeon_quest.ttf'
 blocker_img = pygame.image.load('media/Plankton.png')
 
+#Sounds
 THROW_SOUND = 'media/throw.mp3'
 game_over_sound = 'media/game_over.wav'
 game_over_music = 'media/game_over_music.mp3'
