@@ -7,10 +7,12 @@ import os
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 563
 PLAYER_SPEED = 5
+
 POWER_UP_RATE = 200    # Eine niedrigere Zahl bedeutet häufigere Power-ups
 SCORE_MULTIPLIER = 2   # Für X2-Boost Power-up
-BLOCKER_SPAWN_RATE = 2000 # Niedrigere Zahl bedeutet häufigeres spawnen
+BLOCKER_SPAWN_RATE = 400 # Niedrigere Zahl bedeutet häufigeres spawnen
 BLOCKER_COUNT = 0
+BLOCKER_MAXIMUM = 5 # Anzahl der Blocker auf die Zahl limitiert
 
 # Definieren einer Konstante, um die die Spawnrate der Gegner in jeder Welle erhöht wird
 ENEMY_SPAWN_INCREMENT = 20  # Wert um den die Spawnrate jede Wave verringert wird - je weniger, desto mehr Spawns
@@ -35,7 +37,6 @@ STANDARD_ENEMY_SCORE_VALUE = 10
 STANDARD_ENEMY_SPAWN_RATE = 200  # Niedrigere Zahl bedeutet häufigeres spawnen
 #Advanced-Gegner
 ADVANCED_ENEMY_SPEED = 1 # Speed sollte immer int sein, sonst kommt es zu Problemen, da rect.x float nicht benutzen kann -> Rundungsfehler; komische Geschwindigkeiten
-BLOCKER_SPAWN_RATE = 2000 # Niedrigere Zahl bedeutet häufigeres spawnen
 ADVANCED_HITPOINTS = 3
 ADVANCED_ENEMY_SCORE_VALUE = 100
 ADVANCED_ENEMY_SPAWN_RATE = 600  # Niedrigere Zahl bedeutet häufigeres spawnen

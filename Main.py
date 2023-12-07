@@ -186,8 +186,7 @@ def show_start_screen(screen):
 
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
-    max_blockers = 8 # Limited amount of blockers, otherwise game tends to become unplayable
-    global BLOCKER_COUNT
+    global BLOCKER_COUNT, BLOCKER_MAXIMUM
     try:
         if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
             # Randomly choose between "standard" and "advanced" enemy types
@@ -208,7 +207,7 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
         # Add a chance to spawn a blocker instead of an enemy
         if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
             # Spawn the blocker at the player's x position within the shooting area
-            if BLOCKER_COUNT < max_blockers:
+            if BLOCKER_COUNT < BLOCKER_MAXIMUM:
                 blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
                 blocker_group.add(blocker)
                 BLOCKER_COUNT += 1
@@ -450,7 +449,7 @@ def main_game(player_name):
                 display_wave_message(screen, f"Wave {current_wave} completed!")
                 # Hier sollten keine Gegner gespawnt werden
             elif in_between_waves and current_time - wave_start_time > WAVE_DURATION + BREAK_DURATION:
-                next_wave(enemies)  # Starte die nächste Welle und leere die Gegnerliste
+                next_wave(enemies, blocker_group)  # Starte die nächste Welle und leere die Gegnerliste
 
             if not in_between_waves:
                 # Gegner und Power-Ups spawnen, wenn keine Pause ist
@@ -561,9 +560,9 @@ def game_intro():
         print(exc_type, fname, exc_tb.tb_lineno)
         running = False
 
-def next_wave(enemies):
+def next_wave(enemies, blocker_group):
     try:
-        global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
+        global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, BLOCKER_COUNT
         current_wave += 1
         if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
             STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
@@ -571,6 +570,8 @@ def next_wave(enemies):
         in_between_waves = False
         wave_start_time = pygame.time.get_ticks()
         enemies.empty()  # Clear all existing enemies at the start of the new wave
+        blocker_group.empty()
+        BLOCKER_COUNT = 0
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
