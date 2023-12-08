@@ -1,4 +1,4 @@
-# #Import der benötigten Module
+# Import der benötigten Module
 import pygame
 import random
 import sys
@@ -9,25 +9,24 @@ from datetime import datetime
 from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
-import pygame
 
 running = True
-# Initialize pygame
+# Initialisiere pygame
 pygame.init()
 size = (1000, 563)
 
-# Set up the display without any frame
+# Bildschirm ohne Rahmen setzen
 screen = pygame.display.set_mode(size, pygame.NOFRAME)
 
-# Load the image you want to display
+# Startbildschirm laden
 start_image = pygame.image.load('media/loading_screen.png').convert()
 
-# Display the image for 3 seconds
+# Bild zeigen für 3 Sekunden
 screen.blit(start_image, (0, 0))
-pygame.display.flip()  # Update the display
-pygame.time.wait(3000)  # Wait for 3000 milliseconds
+pygame.display.flip()  # Aktualisiere den Bildschirm
+pygame.time.wait(3000)  # Warte für 3 Sek.
 
-# Reinitialize the display with a frame for the main game
+# Reinitialisiere den Bildschrim mit Rahmen für das Hauptspiel
 pygame.display.set_mode(size)
 
 pygame.font.init()
@@ -39,7 +38,7 @@ BUTTON_FONT = pygame.font.Font(None, 36)
 BIG_FONT = pygame.font.SysFont(None, 80)
 REGULAR_FONT = pygame.font.SysFont(None, 36)
 
-# Sound effects
+# Soundeffekte
 BACKGROUND_MUSIC = 'media/background_music.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
@@ -47,7 +46,7 @@ throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
 game_over = pygame.mixer.Sound(game_over_sound)
 
-# Screen setup
+# Screensetup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
 
