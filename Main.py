@@ -206,11 +206,16 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
         
         # Add a chance to spawn a blocker instead of an enemy
         if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
-            # Spawn the blocker at the player's x position within the shooting area
+             # Nur Blocker spawnen, wenn sie nicht kollidieren                     
             if BLOCKER_COUNT < BLOCKER_MAXIMUM:
-                blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
-                blocker_group.add(blocker)
-                BLOCKER_COUNT += 1
+                blocker_height = blocker_img.get_rect().height
+                blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'] + (blocker_height // 2), shooting_area['bottom'] - (blocker_height // 2))
+                blocker_collides = pygame.sprite.spritecollideany(blocker, blocker_group) 
+                if blocker_collides is None:
+                    blocker_group.add(blocker)
+                    BLOCKER_COUNT += 1
+                else:
+                    pass
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -515,7 +520,7 @@ def main_game(player_name):
             power_ups.draw(screen)
 
             for blocker in blocker_group:
-                screen.blit(blocker.image, blocker.rect)
+                screen.blit(blocker.image, blocker.rect)                   
 
             # Display the score
             font = pygame.font.SysFont(None, 36)
