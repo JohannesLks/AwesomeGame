@@ -12,7 +12,7 @@ from sprites import GameSpriteFactory
 import pygame
 
 running = True
-# Initialize pygame
+# Initialisiere pygame
 pygame.init()
 size = (1000, 563)
 
