@@ -197,17 +197,11 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
         if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
             # Randomly choose between "standard" and "advanced" enemy types
             enemy = GameSpriteFactory.create_enemy("standard")
-
-            # Adjust spawning position to be above the bottom buffer zone
-            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
 
         if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
             # Randomly choose between "standard" and "advanced" enemy types)
             enemy = GameSpriteFactory.create_enemy("advanced")
-
-            # Adjust spawning position to be above the bottom buffer zone
-            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
             enemy_group.add(enemy)
         
         # Add a chance to spawn a blocker instead of an enemy

@@ -136,10 +136,7 @@ class BaseEnemy(pygame.sprite.Sprite):
         self.sine_wave_amplitude = 10  # Adjust this value to control the height of the wave
         self.sine_wave_frequency = 0.01  # Adjust this value to control the frequency
         self.angle = 0
-        self.initial_y = random.randint(0, SCREEN_HEIGHT - self.rect.height - self.sine_wave_amplitude)   
-
-
-             
+        self.initial_y = random.randint(0, SCREEN_HEIGHT - (self.rect.height + player_images[0].get_height() + self.sine_wave_amplitude))
 
     def update(self):
         # Update x-coordinate as before
