@@ -373,6 +373,7 @@ def game_over_screen(screen, score, player_name):
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load(BACKGROUND_MUSIC)
                     pygame.mixer.music.play(-1)
+                    init_game()
                     main_game(player_name)
                     running = False
 
@@ -410,6 +411,17 @@ def game_over_screen(screen, score, player_name):
 
         # Update the display after all drawing
         pygame.display.flip()
+
+
+def init_game():
+    global BLOCKER_COUNT, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, current_wave, in_between_waves, wave_start_time
+    # Bevor ein neues Spiel gestartet wird, die veränderten globalen Variablen auf die Default Werte zurücksetzen
+    BLOCKER_COUNT = 0
+    STANDARD_ENEMY_SPAWN_RATE = 200
+    ADVANCED_ENEMY_SPAWN_RATE = 600
+    current_wave = 1
+    in_between_waves = False
+    wave_start_time = 0
 
 def main_game(player_name):
     try:
