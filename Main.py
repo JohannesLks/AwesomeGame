@@ -45,6 +45,7 @@ pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
 game_over = pygame.mixer.Sound(game_over_sound)
+plankton_spawn_sound = pygame.mixer.Sound(PLANKTON_SPAWN_SOUND)
 
 # Screensetup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -213,6 +214,7 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
                 if blocker_collides is None:
                     blocker_group.add(blocker)
                     BLOCKER_COUNT += 1
+                    plankton_spawn_sound.play()
                 else:
                     pass
     except Exception as e:
