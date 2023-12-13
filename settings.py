@@ -92,3 +92,4 @@ blocker_img = pygame.image.load('media/Plankton.png')
 THROW_SOUND = 'media/throw.mp3'
 game_over_sound = 'media/game_over.wav'
 game_over_music = 'media/game_over_music.mp3'
+PLANKTON_SPAWN_SOUND = 'media/evil_laugh.wav'

@@ -45,6 +45,7 @@ pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
 game_over = pygame.mixer.Sound(game_over_sound)
+plankton_spawn_sound = pygame.mixer.Sound(PLANKTON_SPAWN_SOUND)
 
 # Screensetup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -213,6 +214,7 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
                 if blocker_collides is None:
                     blocker_group.add(blocker)
                     BLOCKER_COUNT += 1
+                    plankton_spawn_sound.play()
                 else:
                     pass
     except Exception as e:
@@ -370,6 +372,7 @@ def game_over_screen(screen, score, player_name):
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load(BACKGROUND_MUSIC)
                     pygame.mixer.music.play(-1)
+                    init_game()
                     main_game(player_name)
                     running = False
 
@@ -407,6 +410,17 @@ def game_over_screen(screen, score, player_name):
 
         # Aktualisieren der Anzeige nach allen Zeichnungen
         pygame.display.flip()
+
+
+def init_game():
+    global BLOCKER_COUNT, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, current_wave, in_between_waves, wave_start_time
+    # Bevor ein neues Spiel gestartet wird, die veränderten globalen Variablen auf die Default Werte zurücksetzen
+    BLOCKER_COUNT = 0
+    STANDARD_ENEMY_SPAWN_RATE = 200
+    ADVANCED_ENEMY_SPAWN_RATE = 600
+    current_wave = 1
+    in_between_waves = False
+    wave_start_time = 0
 
 def main_game(player_name):
     try:
