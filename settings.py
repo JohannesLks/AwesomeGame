@@ -1,4 +1,4 @@
-#Import der benötigten Module2
+#Import der benötigten Module
 import pygame
 import sys
 import os
