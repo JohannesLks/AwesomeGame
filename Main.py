@@ -1,4 +1,4 @@
-# Import der benötigten Module
+# Import necessary modules
 import pygame
 import random
 import sys
@@ -9,24 +9,25 @@ from datetime import datetime
 from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
+import pygame
 
 running = True
-# Initialisiere pygame
+# Initialize pygame
 pygame.init()
 size = (1000, 563)
 
-# Bildschirm ohne Rahmen setzen
+# Set up the display without any frame
 screen = pygame.display.set_mode(size, pygame.NOFRAME)
 
-# Startbildschirm laden
+# Load the image you want to display
 start_image = pygame.image.load('media/loading_screen.png').convert()
 
-# Bild zeigen für 3 Sekunden
+# Display the image for 3 seconds
 screen.blit(start_image, (0, 0))
-pygame.display.flip()  # Aktualisiere den Bildschirm
-pygame.time.wait(3000)  # Warte für 3 Sek.
+pygame.display.flip()  # Update the display
+pygame.time.wait(3000)  # Wait for 3000 milliseconds
 
-# Reinitialisiere den Bildschrim mit Rahmen für das Hauptspiel
+# Reinitialize the display with a frame for the main game
 pygame.display.set_mode(size)
 
 pygame.font.init()
@@ -38,16 +39,15 @@ BUTTON_FONT = pygame.font.Font(None, 36)
 BIG_FONT = pygame.font.SysFont(None, 80)
 REGULAR_FONT = pygame.font.SysFont(None, 36)
 
-# Soundeffekte
+
+# Sound effects
 BACKGROUND_MUSIC = 'media/background_music.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
 game_over = pygame.mixer.Sound(game_over_sound)
-plankton_spawn_sound = pygame.mixer.Sound(PLANKTON_SPAWN_SOUND)
-
-# Screensetup
+# Screen setup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
 
@@ -61,6 +61,9 @@ shooting_area = {
     'top': 0,
     'bottom': SCREEN_HEIGHT - (player_height + buffer_zone)
 }
+
+
+
 
 # Custom events
 AMMO_REGEN_EVENT = pygame.USEREVENT + 1
@@ -102,6 +105,7 @@ def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, f
         text_surf = text_font.render(text, True, text_color)
         text_rect = text_surf.get_rect(center=button_rect.center)
         screen.blit(text_surf, text_rect)
+
     return button_rect, clicked
 
 # Funktion zum Erstellen von Text
@@ -111,125 +115,97 @@ def text_objects(text, font):
 
 # Startbildschirm anzeigen
 def show_start_screen(screen):
-    try:
-        global running
-        # Define button positions and sizes once, outside of the loop.
-        button_y = SCREEN_HEIGHT - BUTTON_HEIGHT - LOWER_OFFSET  # Lower the buttons by increasing this value
+    global running
+    # Define button positions and sizes once, outside of the loop.
+    button_y = SCREEN_HEIGHT - BUTTON_HEIGHT - LOWER_OFFSET  # Lower the buttons by increasing this value
 
-        # Set the x position for the start button to be half the button's width to the left of the screen's center
-        start_button_x = center_x - half_button_width - BUTTON_SPACING // 2
+    # Set the x position for the start button to be half the button's width to the left of the screen's center
+    start_button_x = center_x - half_button_width - BUTTON_SPACING // 2
 
-        # Set the x position for the quit button to be half the button's width to the right of the screen's center
-        quit_button_x = center_x + BUTTON_SPACING // 2
+    # Set the x position for the quit button to be half the button's width to the right of the screen's center
+    quit_button_x = center_x + BUTTON_SPACING // 2
 
 
-        # Set the x position for the start button to be to the left of the center minus the button width
-        start_button_x = center_x - BUTTON_WIDTH - BUTTON_SPACING // 2
+    # Set the x position for the start button to be to the left of the center minus the button width
+    start_button_x = center_x - BUTTON_WIDTH - BUTTON_SPACING // 2
 
-        # Set the x position for the quit button to be to the right of the center
-        quit_button_x = center_x + BUTTON_SPACING // 2
+    # Set the x position for the quit button to be to the right of the center
+    quit_button_x = center_x + BUTTON_SPACING // 2
 
-        input_text = ''
-        input_box_active = False
-        input_box_x = SCREEN_WIDTH / 2 - INPUT_WIDTH / 2
-        input_box_y = INPUT_BOX_Y_OFFSET
-        input_box_rect = pygame.Rect(input_box_x, input_box_y, INPUT_WIDTH, INPUT_HEIGHT)
-    
-        # Main loop for the start screen.
-        while running:
-            screen.blit(welcome_background_img, (0, 0))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+    input_text = ''
+    input_box_active = False
+    input_box_x = SCREEN_WIDTH / 2 - INPUT_WIDTH / 2
+    input_box_y = INPUT_BOX_Y_OFFSET
+    input_box_rect = pygame.Rect(input_box_x, input_box_y, INPUT_WIDTH, INPUT_HEIGHT)
+
+    # Main loop for the start screen.
+    while running:
+        screen.blit(welcome_background_img, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # This should be the tuple unpacking the return of create_button
+                start_button_rect, start_button_clicked = create_button(screen, start_button_img, start_button_hover_img, start_button_x, button_y, text='Start')
+                if start_button_rect.collidepoint(event.pos):
+                    main_game(input_text)  # Call the function or code to start the game
+                quit_button_rect, quit_button_clicked = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
+                if quit_button_rect.collidepoint(event.pos):
                     running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # This should be the tuple unpacking the return of create_button
-                    start_button_rect, start_button_clicked = create_button(screen, start_button_img, start_button_hover_img, start_button_x, button_y, text='Start')
-                    if start_button_rect.collidepoint(event.pos):
-                        main_game(input_text)  # Call the function or code to start the game
-                    quit_button_rect, quit_button_clicked = create_button(screen, quit_button_img, quit_button_hover_img, quit_button_x, button_y, text='Quit')
-                    if quit_button_rect.collidepoint(event.pos):
-                        running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        main_game(input_text)
-                # Handle input events for the input box
-                input_text, input_box_active = handle_input_events(event, input_text, input_box_active, input_box_rect)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    main_game(input_text)
+            # Handle input events for the input box
+            input_text, input_box_active = handle_input_events(event, input_text, input_box_active, input_box_rect)
 
-            start_button_rect, start_button_clicked = create_button(
-                screen, start_button_img, start_button_hover_img, 
-                start_button_x, button_y, text='Start'
-            )
-            quit_button_rect, quit_button_clicked = create_button(
-                screen, quit_button_img, quit_button_hover_img, 
-                quit_button_x, button_y, text='Quit'
-            )
-            # Handle the input box drawing and interaction here
-            input_text, input_box_active, input_box_rect = input_box(
-                screen,
-                input_box_x,
-                input_box_y,
-                INPUT_WIDTH,
-                INPUT_HEIGHT,
-                input_text,
-                input_box_active,
-                FONT,  # Pass the font object
-                background_image=input_bg_image
-            )
-            pygame.display.flip()  # Update the screen
+        start_button_rect, start_button_clicked = create_button(
+            screen, start_button_img, start_button_hover_img, 
+            start_button_x, button_y, text='Start'
+        )
+        quit_button_rect, quit_button_clicked = create_button(
+            screen, quit_button_img, quit_button_hover_img, 
+            quit_button_x, button_y, text='Quit'
+        )
+        # Handle the input box drawing and interaction here
+        input_text, input_box_active, input_box_rect = input_box(
+            screen,
+            input_box_x,
+            input_box_y,
+            INPUT_WIDTH,
+            INPUT_HEIGHT,
+            input_text,
+            input_box_active,
+            FONT,  # Pass the font object
+            background_image=input_bg_image
+        )
+        pygame.display.flip()  # Update the screen
 
-        return input_text  # Return the text entered by the user
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
+    return input_text  # Return the text entered by the user
+
+
 
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
-    global BLOCKER_COUNT, BLOCKER_MAXIMUM
-    try:
-        if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
-            # Randomly choose between "standard" and "advanced" enemy types
-            enemy = GameSpriteFactory.create_enemy("standard")
+    max_blockers = 8 # Limited amount of blockers, otherwise game tends to become unplayable
+    global BLOCKER_COUNT
+    if random.randint(1, STANDARD_ENEMY_SPAWN_RATE) == 1:
+        # Randomly choose between "standard" and "advanced" enemy types
+        enemy = GameSpriteFactory.create_enemy("standard")
+        enemy_group.add(enemy)
 
-            # Adjust spawning position to be above the bottom buffer zone
-            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
-            enemy_collides = pygame.sprite.spritecollideany(enemy, enemy_group) 
-            if enemy_collides is None:
-                enemy_group.add(enemy)
-            else:
-                pass
+    if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
+        # Randomly choose between "standard" and "advanced" enemy types)
+        enemy = GameSpriteFactory.create_enemy("advanced")
+        enemy_group.add(enemy)
+    
+    # Add a chance to spawn a blocker instead of an enemy
+    if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
+        # Spawn the blocker at the player's x position within the shooting area
+        if BLOCKER_COUNT < max_blockers:
+            blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
+            blocker_group.add(blocker)
+            BLOCKER_COUNT += 1
 
-        if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
-            # Randomly choose between "standard" and "advanced" enemy types)
-            enemy = GameSpriteFactory.create_enemy("advanced")
-
-            # Adjust spawning position to be above the bottom buffer zone
-            enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
-            enemy_collides = pygame.sprite.spritecollideany(enemy, enemy_group) 
-            if enemy_collides is None:
-                enemy_group.add(enemy)
-            else:
-                pass
-        
-        # Add a chance to spawn a blocker instead of an enemy
-        if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
-             # Nur Blocker spawnen, wenn sie nicht kollidieren                     
-            if BLOCKER_COUNT < BLOCKER_MAXIMUM:
-                blocker_height = blocker_img.get_rect().height
-                blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'] + (blocker_height // 2), shooting_area['bottom'] - (blocker_height // 2))
-                blocker_collides = pygame.sprite.spritecollideany(blocker, blocker_group) 
-                if blocker_collides is None:
-                    blocker_group.add(blocker)
-                    BLOCKER_COUNT += 1
-                    plankton_spawn_sound.play()
-                else:
-                    pass
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
 
 # Function to handle spawning power-ups
 def spawn_power_ups(power_up_group, player_rect, shooting_area):
@@ -256,6 +232,10 @@ def spawn_power_ups(power_up_group, player_rect, shooting_area):
         power_up = GameSpriteFactory.create_power_up(power_up_type, x, y)
         power_up_group.add(power_up)
 
+
+
+
+
 def regenerate_ammo(player):
     global current_wave
     if player.ammo_boost_active:
@@ -281,6 +261,7 @@ def load_highscores(filename='highscores.csv'):
             writer = csv.writer(file)
             writer.writerow(['Name', 'Score', 'Date'])
     return highscores
+
 
 # Funktion zum Speichern der Highscores in der CSV-Datei
 def save_highscore(name, score, filename='highscores.csv'):
@@ -319,6 +300,9 @@ def input_box(screen, x, y, w, h, text, active, font, background_image):
 
     return text, active, input_box_rect
 
+
+
+
 def handle_input_box_events(event, input_text, input_box_active):
     if event.type == pygame.MOUSEBUTTONDOWN:
         # If the user clicked on the input_box rect.
@@ -337,6 +321,7 @@ def handle_input_box_events(event, input_text, input_box_active):
             else:
                 input_text += event.unicode
     return input_text, input_box_active
+
 
 # Funktion für den Startbildschirm
 def start_screen(screen):
@@ -381,7 +366,6 @@ def game_over_screen(screen, score, player_name):
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load(BACKGROUND_MUSIC)
                     pygame.mixer.music.play(-1)
-                    init_game()
                     main_game(player_name)
                     running = False
 
@@ -420,189 +404,154 @@ def game_over_screen(screen, score, player_name):
         # Update the display after all drawing
         pygame.display.flip()
 
-
-def init_game():
-    global BLOCKER_COUNT, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, current_wave, in_between_waves, wave_start_time
-    # Bevor ein neues Spiel gestartet wird, die veränderten globalen Variablen auf die Default Werte zurücksetzen
-    BLOCKER_COUNT = 0
-    STANDARD_ENEMY_SPAWN_RATE = 200
-    ADVANCED_ENEMY_SPAWN_RATE = 600
-    current_wave = 1
-    in_between_waves = False
-    wave_start_time = 0
-
 def main_game(player_name):
-    try:
-        # Main game loop
-        global current_wave, in_between_waves, wave_start_time, running
+    # Main game loop
+    global current_wave, in_between_waves, wave_start_time, running
 
-        clock = pygame.time.Clock()
-        player = GameSpriteFactory.create_player()
-        players = pygame.sprite.Group()
-        players.add(player)
-        enemies = pygame.sprite.Group()
-        burgers = pygame.sprite.Group()
-        power_ups = pygame.sprite.Group()
-        wave_start_time = pygame.time.get_ticks()
-        blocker_group = pygame.sprite.Group()
+    clock = pygame.time.Clock()
+    player = GameSpriteFactory.create_player()
+    players = pygame.sprite.Group()
+    players.add(player)
+    enemies = pygame.sprite.Group()
+    burgers = pygame.sprite.Group()
+    power_ups = pygame.sprite.Group()
+    wave_start_time = pygame.time.get_ticks()
+    blocker_group = pygame.sprite.Group()
 
-        while running:
-            clock.tick(60)  # Run at 60 frames per second
-            screen.fill(WHITE)  # Fill the background with white color
-            screen.blit(background_img, (0, 0))  # Draw the background image
+    while running:
+        clock.tick(60)  # Run at 60 frames per second
+        screen.fill(WHITE)  # Fill the background with white color
+        screen.blit(background_img, (0, 0))  # Draw the background image
 
-            # Event handling
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        if player.ammo > 0:
-                            player.start_animation()
-                            burger = GameSpriteFactory.create_burger(player.rect.centerx, player.rect.top)
-                            burgers.add(burger)
-                            player.ammo -= 1
-                            throw_sound.play()
-                elif event.type == AMMO_REGEN_EVENT:
-                    regenerate_ammo(player)
-                if in_between_waves:
-                    continue  # Ignoriere alle Events, wenn wir uns zwischen den Wellen befinden
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if player.ammo > 0:
+                        player.start_animation()
+                        burger = GameSpriteFactory.create_burger(player.rect.centerx, player.rect.top)
+                        burgers.add(burger)
+                        player.ammo -= 1
+                        throw_sound.play()
+            elif event.type == AMMO_REGEN_EVENT:
+                regenerate_ammo(player)
+            if in_between_waves:
+                continue  # Ignoriere alle Events, wenn wir uns zwischen den Wellen befinden
 
-            # Aktualisiere die Zeit und überprüfe die Welle
-            current_time = pygame.time.get_ticks()
-            if not in_between_waves and current_time - wave_start_time > WAVE_DURATION:
-                in_between_waves = True
-                display_wave_message(screen, f"Wave {current_wave} completed!")
-                # Hier sollten keine Gegner gespawnt werden
-            elif in_between_waves and current_time - wave_start_time > WAVE_DURATION + BREAK_DURATION:
-                next_wave(enemies, blocker_group)  # Starte die nächste Welle und leere die Gegnerliste
+        # Aktualisiere die Zeit und überprüfe die Welle
+        current_time = pygame.time.get_ticks()
+        if not in_between_waves and current_time - wave_start_time > WAVE_DURATION:
+            in_between_waves = True
+            display_wave_message(screen, f"Wave {current_wave} completed!")
+            # Hier sollten keine Gegner gespawnt werden
+        elif in_between_waves and current_time - wave_start_time > WAVE_DURATION + BREAK_DURATION:
+            next_wave(enemies)  # Starte die nächste Welle und leere die Gegnerliste
 
-            if not in_between_waves:
-                # Gegner und Power-Ups spawnen, wenn keine Pause ist
-                spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
-                spawn_power_ups(power_ups, player.rect, shooting_area)
+        if not in_between_waves:
+            # Gegner und Power-Ups spawnen, wenn keine Pause ist
+            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
+            spawn_power_ups(power_ups, player.rect, shooting_area)
 
-        
-            for enemy in list(enemies):  # Make a copy of the group list to iterate over
-                enemy_off_screen = enemy.update()
-                if enemy_off_screen:
-                    if isinstance(enemy, AdvancedEnemy):
-                        player.health -= 30
-                    elif isinstance(enemy, StandardEnemy):
-                        player.health -= 10
-                    if player.health <= 0:
-                        game_over_screen(screen, player.score, player_name)
-                        running = False  # End the game if health is depleted
+            
+        for enemy in list(enemies):  # Make a copy of the group list to iterate over
+            enemy_off_screen = enemy.update()
+            if enemy_off_screen:
+                if isinstance(enemy, AdvancedEnemy):
+                    player.health -= 30
+                elif isinstance(enemy, StandardEnemy):
+                    player.health -= 10
+                if player.health <= 0:
+                    game_over_screen(screen, player.score, player_name)
+                    running = False  # End the game if health is depleted
 
-            # Update game states
-            keys = pygame.key.get_pressed()
-            keys = pygame.key.get_pressed()
-            player.update(keys) 
-            enemies.update()
-            burgers.update()
-            blocker_group.update()
-            power_ups.update()
+        # Update game states
+        keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
+        player.update(keys) 
+        enemies.update()
+        burgers.update()
+        blocker_group.update()
+        power_ups.update()
 
-            # Collision detection with power-ups
-            for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
-                hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
-                for power_up in hit_power_ups:
-                    power_up.effect(player)  # Apply the effect of the power
-                    bubble.play()
-            for burger in burgers:
-                # Check for collision with enemies as usual
-                hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
-                for enemy in hit_enemies:
-                    if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
-                        try:
-                            player.score += enemy.score_value  # Update the player's money
-                        except Exception as e:
-                            exc_type, exc_obj, exc_tb = sys.exc_info()
-                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                            print(exc_type, fname, exc_tb.tb_lineno)
-                            running = False
-                    burger.kill()
+        # Collision detection with power-ups
+        for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
+            hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
+            for power_up in hit_power_ups:
+                power_up.effect(player)  # Apply the effect of the power
+                bubble.play()
+        for burger in burgers:
+            # Check for collision with enemies as usual
+            hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
+            for enemy in hit_enemies:
+                if enemy.take_damage(BURGER_DAMAGE, player.rect.center):  # Check if the enemy was destroyed
+                    player.score += enemy.score_value  # Update the player's money
+                burger.kill()
 
 
-                hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
-                if hit_blockers:
-                    burger.kill()  # Optionally make the burger disappear when hitting a blocker
+            hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
+            if hit_blockers:
+                burger.kill()  # Optionally make the burger disappear when hitting a blocker
 
-            #Ammunation regeneration
-            for event in pygame.event.get():
-                if event.type == AMMO_REGEN_EVENT:
-                    regenerate_ammo(player)
 
-            # Drawing everything on the screen
-            screen.blit(background_img, (0, 0))
-            players.draw(screen)
-            enemies.draw(screen)
-            burgers.draw(screen)
-            power_ups.draw(screen)
+        #Ammunation regeneration
+        for event in pygame.event.get():
+            if event.type == AMMO_REGEN_EVENT:
+                regenerate_ammo(player)
 
-            for blocker in blocker_group:
-                screen.blit(blocker.image, blocker.rect)                   
 
-            # Display the score
-            font = pygame.font.SysFont(None, 36)
-            score_text = font.render(f'Money $: {player.score}', True, GREEN)
-            screen.blit(score_text, (10, 10))
+        # Drawing everything on the screen
+        screen.blit(background_img, (0, 0))
+        players.draw(screen)
+        enemies.draw(screen)
+        burgers.draw(screen)
+        power_ups.draw(screen)
 
-            # Display the health
-            health_text = font.render(f'Health: {player.health}', True, RED)
-            screen.blit(health_text, (10, 50))
-        
-            # Display the ammunation
-            ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
-            screen.blit(ammo_text, (10, 80))
+        for blocker in blocker_group:
+            screen.blit(blocker.image, blocker.rect)
 
-            # Update the display
-            pygame.display.flip()
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
+
+        # Display the score
+        font = pygame.font.SysFont(None, 36)
+        score_text = font.render(f'Money $: {player.score}', True, GREEN)
+        screen.blit(score_text, (10, 10))
+
+        # Display the health
+        health_text = font.render(f'Health: {player.health}', True, RED)
+        screen.blit(health_text, (10, 50))
+    
+        # Display the ammunation
+        ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
+        screen.blit(ammo_text, (10, 80))
+
+        # Update the display
+        pygame.display.flip()
 
 # Hauptfunktion, die das Spiel startet
 def game_intro():
-    try:
-        intro = True
-        while intro:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-            player_name = show_start_screen(screen)
-            if player_name is None:  # Überprüft, ob die input_box None zurückgibt
-                intro = False  # Beendet die Schleife und damit das Intro
-            else:
-                main_game(player_name)  # Startet das Hauptspiel
-                intro = False  # Beendet die Intro-Schleife, nachdem das Spiel beendet wurde
+    intro = True
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        player_name = show_start_screen(screen)
+        if player_name is None:  # Überprüft, ob die input_box None zurückgibt
+            intro = False  # Beendet die Schleife und damit das Intro
+        else:
+            main_game(player_name)  # Startet das Hauptspiel
+            intro = False  # Beendet die Intro-Schleife, nachdem das Spiel beendet wurde
 
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
-
-def next_wave(enemies, blocker_group):
-    try:
-        global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, BLOCKER_COUNT
-        current_wave += 1
-        if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
-            STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
-            ADVANCED_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
-        in_between_waves = False
-        wave_start_time = pygame.time.get_ticks()
-        enemies.empty()  # Clear all existing enemies at the start of the new wave
-        blocker_group.empty()
-        BLOCKER_COUNT = 0
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False 
+def next_wave(enemies):
+    global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
+    current_wave += 1
+    if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
+        STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
+        ADVANCED_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
+    in_between_waves = False
+    wave_start_time = pygame.time.get_ticks()
+    enemies.empty()  # Clear all existing enemies at the start of the new wave
 
 # Funktion zur Anzeige einer Nachricht zwischen den Wellen
 
@@ -629,6 +578,7 @@ def display_wave_message(screen, message):
                 pygame.quit()
                 sys.exit()
         pygame.time.delay(100)  # Wait for 100 milliseconds at a time
+
 
 
 if __name__ == '__main__':
