@@ -169,6 +169,7 @@ class BaseEnemy(pygame.sprite.Sprite):
                     pygame.mixer.Sound(self.destroy_sound).play()
                 if self.hitpoints <= 0 and not self.defeated:
                     self.change_to_defeated_state(player_position)
+                    return True
 
     def change_to_defeated_state(self, player_position):
         # Mark the enemy as defeated
