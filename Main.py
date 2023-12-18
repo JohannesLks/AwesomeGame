@@ -612,14 +612,13 @@ def display_wave_message(screen, message):
     screen.blit(text_surface, text_rect)
     pygame.display.flip()
 
-    # Anstatt zu warten, wird eine Schleife für die Dauer der Unterbrechung durchgeführt, während  weiterhin Ereignisse verarbeiten
     start_time = pygame.time.get_ticks()
     while pygame.time.get_ticks() - start_time < BREAK_DURATION:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        pygame.time.delay(100)  # 100 Millisekunden lang warten
+        pygame.time.delay(100)
 
 
 if __name__ == '__main__':
