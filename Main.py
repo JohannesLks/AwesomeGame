@@ -1,4 +1,4 @@
-# Import necessary modules
+# Import der benötigten Module
 import pygame
 import random
 import sys
@@ -9,25 +9,24 @@ from datetime import datetime
 from settings import *
 from sprites import *
 from sprites import GameSpriteFactory
-import pygame
 
 running = True
-# Initialize pygame
+# Initialisiere pygame
 pygame.init()
 size = (1000, 563)
 
-# Set up the display without any frame
+# Bildschirm ohne Rahmen setzen
 screen = pygame.display.set_mode(size, pygame.NOFRAME)
 
-# Load the image you want to display
+# Startbildschirm laden
 start_image = pygame.image.load('media/loading_screen.png').convert()
 
-# Display the image for 3 seconds
+# Bild zeigen für 3 Sekunden
 screen.blit(start_image, (0, 0))
-pygame.display.flip()  # Update the display
-pygame.time.wait(3000)  # Wait for 3000 milliseconds
+pygame.display.flip()  # Aktualisiere den Bildschirm
+pygame.time.wait(3000)  # Warte für 3 Sek.
 
-# Reinitialize the display with a frame for the main game
+# Reinitialisiere den Bildschrim mit Rahmen für das Hauptspiel
 pygame.display.set_mode(size)
 
 pygame.font.init()
@@ -39,15 +38,16 @@ BUTTON_FONT = pygame.font.Font(None, 36)
 BIG_FONT = pygame.font.SysFont(None, 80)
 REGULAR_FONT = pygame.font.SysFont(None, 36)
 
-
-# Sound effects
+# Soundeffekte
 BACKGROUND_MUSIC = 'media/background_music.mp3'
 pygame.mixer.music.load(BACKGROUND_MUSIC)
 pygame.mixer.music.play(-1)
 throw_sound = pygame.mixer.Sound(THROW_SOUND)
 bubble = pygame.mixer.Sound("media/bubble.mp3")
 game_over = pygame.mixer.Sound(game_over_sound)
-# Screen setup
+plankton_spawn_sound = pygame.mixer.Sound(PLANKTON_SPAWN_SOUND)
+
+# Screensetup
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Krabs' Burger-Battle: Die Geldfischjagd")
 
@@ -61,9 +61,6 @@ shooting_area = {
     'top': 0,
     'bottom': SCREEN_HEIGHT - (player_height + buffer_zone)
 }
-
-
-
 
 # Custom events
 AMMO_REGEN_EVENT = pygame.USEREVENT + 1
@@ -105,7 +102,6 @@ def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, f
         text_surf = text_font.render(text, True, text_color)
         text_rect = text_surf.get_rect(center=button_rect.center)
         screen.blit(text_surf, text_rect)
-
     return button_rect, clicked
 
 # Funktion zum Erstellen von Text
@@ -183,7 +179,6 @@ def show_start_screen(screen):
     return input_text  # Return the text entered by the user
 
 
-
 # Function to handle spawning enemies
 def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
     max_blockers = 8 # Limited amount of blockers, otherwise game tends to become unplayable
@@ -205,7 +200,6 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
             blocker = GameSpriteFactory.create_blocker(player_rect.centerx, shooting_area['top'], shooting_area['bottom'])
             blocker_group.add(blocker)
             BLOCKER_COUNT += 1
-
 
 # Function to handle spawning power-ups
 def spawn_power_ups(power_up_group, player_rect, shooting_area):
@@ -232,10 +226,6 @@ def spawn_power_ups(power_up_group, player_rect, shooting_area):
         power_up = GameSpriteFactory.create_power_up(power_up_type, x, y)
         power_up_group.add(power_up)
 
-
-
-
-
 def regenerate_ammo(player):
     global current_wave
     if player.ammo_boost_active:
@@ -261,7 +251,6 @@ def load_highscores(filename='highscores.csv'):
             writer = csv.writer(file)
             writer.writerow(['Name', 'Score', 'Date'])
     return highscores
-
 
 # Funktion zum Speichern der Highscores in der CSV-Datei
 def save_highscore(name, score, filename='highscores.csv'):
@@ -300,9 +289,6 @@ def input_box(screen, x, y, w, h, text, active, font, background_image):
 
     return text, active, input_box_rect
 
-
-
-
 def handle_input_box_events(event, input_text, input_box_active):
     if event.type == pygame.MOUSEBUTTONDOWN:
         # If the user clicked on the input_box rect.
@@ -321,7 +307,6 @@ def handle_input_box_events(event, input_text, input_box_active):
             else:
                 input_text += event.unicode
     return input_text, input_box_active
-
 
 # Funktion für den Startbildschirm
 def start_screen(screen):
@@ -366,6 +351,7 @@ def game_over_screen(screen, score, player_name):
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load(BACKGROUND_MUSIC)
                     pygame.mixer.music.play(-1)
+                    init_game()
                     main_game(player_name)
                     running = False
 
@@ -404,6 +390,17 @@ def game_over_screen(screen, score, player_name):
         # Update the display after all drawing
         pygame.display.flip()
 
+
+def init_game():
+    global BLOCKER_COUNT, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, current_wave, in_between_waves, wave_start_time
+    # Bevor ein neues Spiel gestartet wird, die veränderten globalen Variablen auf die Default Werte zurücksetzen
+    BLOCKER_COUNT = 0
+    STANDARD_ENEMY_SPAWN_RATE = 200
+    ADVANCED_ENEMY_SPAWN_RATE = 600
+    current_wave = 1
+    in_between_waves = False
+    wave_start_time = 0
+
 def main_game(player_name):
     # Main game loop
     global current_wave, in_between_waves, wave_start_time, running
@@ -417,6 +414,116 @@ def main_game(player_name):
     power_ups = pygame.sprite.Group()
     wave_start_time = pygame.time.get_ticks()
     blocker_group = pygame.sprite.Group()
+
+    while running:
+        clock.tick(60)  # Run at 60 frames per second
+        screen.fill(WHITE)  # Fill the background with white color
+        screen.blit(background_img, (0, 0))  # Draw the background image
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if player.ammo > 0:
+                        player.start_animation()
+                        burger = GameSpriteFactory.create_burger(player.rect.centerx, player.rect.top)
+                        burgers.add(burger)
+                        player.ammo -= 1
+                        throw_sound.play()
+            elif event.type == AMMO_REGEN_EVENT:
+                regenerate_ammo(player)
+            if in_between_waves:
+                continue  # Ignoriere alle Events, wenn wir uns zwischen den Wellen befinden
+
+        # Aktualisiere die Zeit und überprüfe die Welle
+        current_time = pygame.time.get_ticks()
+        if not in_between_waves and current_time - wave_start_time > WAVE_DURATION:
+            in_between_waves = True
+            display_wave_message(screen, f"Wave {current_wave} completed!")
+            # Hier sollten keine Gegner gespawnt werden
+        elif in_between_waves and current_time - wave_start_time > WAVE_DURATION + BREAK_DURATION:
+            next_wave(enemies, blocker_group)  # Starte die nächste Welle und leere die Gegnerliste
+
+        if not in_between_waves:
+            # Gegner und Power-Ups spawnen, wenn keine Pause ist
+            spawn_enemies(enemies, blocker_group, player.rect, shooting_area)
+            spawn_power_ups(power_ups, player.rect, shooting_area)
+
+
+        for enemy in list(enemies):  # Make a copy of the group list to iterate over
+            enemy_off_screen = enemy.update()
+            if enemy_off_screen:
+                if isinstance(enemy, AdvancedEnemy):
+                    player.health -= 30
+                elif isinstance(enemy, StandardEnemy):
+                    player.health -= 10
+                if player.health <= 0:
+                    game_over_screen(screen, player.score, player_name)
+                    running = False  # End the game if health is depleted
+
+        # Update game states
+        keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
+        player.update(keys) 
+        enemies.update()
+        burgers.update()
+        blocker_group.update()
+        power_ups.update()
+
+        # Collision detection with power-ups
+        for burger in list(burgers):  # Iterate over a copy of the burgers again for power-up checks
+            hit_power_ups = pygame.sprite.spritecollide(burger, power_ups, True, pygame.sprite.collide_rect)
+            for power_up in hit_power_ups:
+                power_up.effect(player)  # Apply the effect of the power
+                bubble.play()
+        for burger in burgers:
+            # Check for collision with enemies as usual
+            hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
+            for enemy in hit_enemies:
+                if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
+                    try:
+                        player.score += enemy.score_value  # Update the player's money
+                    except Exception as e:
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        print(exc_type, fname, exc_tb.tb_lineno)
+                        running = False
+                burger.kill()
+
+
+            hit_blockers = pygame.sprite.spritecollide(burger, blocker_group, False, pygame.sprite.collide_mask)
+            if hit_blockers:
+                burger.kill()  # Optionally make the burger disappear when hitting a blocker
+
+        #Ammunation regeneration
+        for event in pygame.event.get():
+            if event.type == AMMO_REGEN_EVENT:
+                regenerate_ammo(player)
+
+        # Drawing everything on the screen
+        screen.blit(background_img, (0, 0))
+        players.draw(screen)
+        enemies.draw(screen)
+        burgers.draw(screen)
+        power_ups.draw(screen)
+
+        for blocker in blocker_group:
+            screen.blit(blocker.image, blocker.rect)                   
+
+        # Display the score
+        font = pygame.font.SysFont(None, 36)
+        score_text = font.render(f'Money $: {player.score}', True, GREEN)
+        screen.blit(score_text, (10, 10))
+
+        # Display the health
+        health_text = font.render(f'Health: {player.health}', True, RED)
+        screen.blit(health_text, (10, 50))
+
+        # Display the ammunation
+        ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
+        screen.blit(ammo_text, (10, 80))
 
     while running:
         clock.tick(60)  # Run at 60 frames per second
@@ -543,15 +650,17 @@ def game_intro():
             main_game(player_name)  # Startet das Hauptspiel
             intro = False  # Beendet die Intro-Schleife, nachdem das Spiel beendet wurde
 
-def next_wave(enemies):
-    global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE
-    current_wave += 1
-    if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
-        STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
-        ADVANCED_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
-    in_between_waves = False
-    wave_start_time = pygame.time.get_ticks()
-    enemies.empty()  # Clear all existing enemies at the start of the new wave
+def next_wave(enemies, blocker_group):
+      global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, BLOCKER_COUNT
+      current_wave += 1
+      if STANDARD_ENEMY_SPAWN_RATE > ENEMY_SPAWN_INCREMENT: # STANDARD_ENEMY_SPAWN_RATE darf nicht auf 0 gehen, sonst bricht das Game ab
+          STANDARD_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
+          ADVANCED_ENEMY_SPAWN_RATE -= ENEMY_SPAWN_INCREMENT  # verringert sich linear
+      in_between_waves = False
+      wave_start_time = pygame.time.get_ticks()
+      enemies.empty()  # Clear all existing enemies at the start of the new wave
+      blocker_group.empty()
+      BLOCKER_COUNT = 0
 
 # Funktion zur Anzeige einer Nachricht zwischen den Wellen
 
@@ -578,7 +687,6 @@ def display_wave_message(screen, message):
                 pygame.quit()
                 sys.exit()
         pygame.time.delay(100)  # Wait for 100 milliseconds at a time
-
 
 
 if __name__ == '__main__':
