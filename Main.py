@@ -194,7 +194,11 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
 
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
-            enemy_group.add(enemy)
+            enemy_collides = pygame.sprite.spritecollideany(enemy, enemy_group) 
+            if enemy_collides is None:
+                enemy_group.add(enemy)
+            else:
+                pass
 
         if random.randint(1, ADVANCED_ENEMY_SPAWN_RATE) == 1:
             # Randomly choose between "standard" and "advanced" enemy types)
@@ -202,7 +206,11 @@ def spawn_enemies(enemy_group, blocker_group, player_rect, shooting_area):
 
             # Adjust spawning position to be above the bottom buffer zone
             enemy.rect.y = random.randint(0, shooting_area['bottom'] - enemy.rect.height)
-            enemy_group.add(enemy)
+            enemy_collides = pygame.sprite.spritecollideany(enemy, enemy_group) 
+            if enemy_collides is None:
+                enemy_group.add(enemy)
+            else:
+                pass
         
         # Add a chance to spawn a blocker instead of an enemy
         if random.randint(1, BLOCKER_SPAWN_RATE) == 1:
