@@ -126,6 +126,8 @@ class BaseEnemy(pygame.sprite.Sprite):
         self.image = pygame.transform.flip(self.original_image, True, False) if self.starting_side == 'left' else self.original_image
         self.rect = self.image.get_rect()
         self.speed = speed
+        self.defeated_speed = 5 
+        self.defeated = False
         if self.starting_side == 'left':
             self.rect.x = -self.rect.width
             self.speed = abs(self.speed)
@@ -133,8 +135,8 @@ class BaseEnemy(pygame.sprite.Sprite):
             self.rect.x = SCREEN_WIDTH
             self.speed = -abs(self.speed)
         # Additional attributes for sine wave movement
-        self.sine_wave_amplitude = 10  # Adjust this value to control the height of the wave
-        self.sine_wave_frequency = 0.01  # Adjust this value to control the frequency
+        self.sine_wave_amplitude = kwargs.pop('amplitude', 10) # Adjust this value to control the height of the wave
+        self.sine_wave_frequency = kwargs.pop('frequency', 0.01)  # Adjust this value to control the frequency
         self.angle = 0
         self.initial_y = random.randint(0, SCREEN_HEIGHT - (self.rect.height + player_images[0].get_height() + self.sine_wave_amplitude))
 
@@ -160,17 +162,51 @@ class BaseEnemy(pygame.sprite.Sprite):
             self.kill()
             return True
 
-    def take_damage(self, damage):
+    def take_damage(self, damage, player_position):
             self.hitpoints -= damage
             if self.hitpoints <= 0:
                 if self.destroy_sound:
                     pygame.mixer.Sound(self.destroy_sound).play()
-                self.kill()
-                return True
+                if self.hitpoints <= 0 and not self.defeated:
+                    self.change_to_defeated_state(player_position)
+
+    def change_to_defeated_state(self, player_position):
+        # Mark the enemy as defeated
+        self.defeated = True
+
+        # Change the image to a defeated state image
+        self.image = pygame.image.load('media/coin.png')
+
+        # Store player position for curved movement
+        self.target_position = player_position
+
+        # Override the update method to move towards the player
+        self.update = self.update_defeated_state
+
+    def update_defeated_state(self):
+        # Calculate the direction towards the target position
+        target_vector = pygame.math.Vector2(self.target_position[0] - self.rect.x, self.target_position[1] - self.rect.y)
+        distance = target_vector.length()
+        target_vector.normalize_ip()
+
+        # If close to the player, reduce speed for a smooth stop
+        if distance < 100:
+            self.defeated_speed = max(1, self.speed * 0.95)
+
+        # Move in a curve by adjusting the direction vector
+        curve_strength = 2  # Adjust this value for more or less curvature
+        direction = pygame.math.Vector2(target_vector.y, -target_vector.x) * curve_strength
+        movement = target_vector * self.defeated_speed + direction
+        self.rect.x += movement.x
+        self.rect.y += movement.y
+
+        # Check if the enemy has reached near the player position
+        if distance < 10:  # Adjust this threshold as needed
+            self.kill()
     
 class StandardEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, *args, **kwargs)
+        super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, amplitude = 1, frequency = 0.07, *args, **kwargs)
 
 class AdvancedEnemy(BaseEnemy):
     def __init__(self, enemy_image, speed, *args, **kwargs):
