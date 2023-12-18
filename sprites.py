@@ -1,11 +1,7 @@
-#Import der benötigten Module
 import pygame
 import random
 from settings import *
 import math
-import sys
-import os
-
 pygame.mixer.init()
 STANDARD_DESTROY_SOUND = 'media/money.mp3'
 ADVANCED_DESTROY_SOUND = 'media/money.mp3'
@@ -66,7 +62,7 @@ class GameSpriteFactory(SpriteFactory):
     def create_blocker(player_x, top, bottom, *args, **kwargs):
         return Blocker(player_x, top, bottom, blocker_image=blocker_image, *args, **kwargs)
 
-# Spieler Klasse
+# Player class
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, player_images, speed, *args, **kwargs):
@@ -74,20 +70,20 @@ class Player(pygame.sprite.Sprite):
         self.animation_frames = player_images
         self.current_frame = 0
         self.animating = False
-        self.animation_speed = 100  # millisekunden pro Bild
+        self.animation_speed = 100  # milliseconds per frame
         self.last_update = pygame.time.get_ticks()
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect(midbottom=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 10))
         self.speed = speed
         self.health = 100
         self.score = 0
-        self.ammo = 10  # Spieler startet mit 10 Burgern
+        self.ammo = 10  # Player starts with 10 ammunition
         self.ammo_boost_active = False
         self.ammo_boost_end_time = 0
 
     def start_animation(self):
         self.animating = True
-        self.current_frame = 0  # Start bei dem ersten Bild
+        self.current_frame = 0  # Start from the first frame
 
     def update_animation(self):
         now = pygame.time.get_ticks()
@@ -95,13 +91,13 @@ class Player(pygame.sprite.Sprite):
             self.last_update = now
             self.current_frame += 1
             if self.current_frame == len(self.animation_frames):
-                self.current_frame = 0  
-                self.animating = False  
+                self.current_frame = 0  # Loop the animation
+                self.animating = False  # Stop animating after one loop
             self.image = self.animation_frames[self.current_frame]
 
     def activate_ammo_boost(self):
         self.ammo_boost_active = True
-        self.ammo_boost_end_time = pygame.time.get_ticks() + 10000  
+        self.ammo_boost_end_time = pygame.time.get_ticks() + 10000  # 10 seconds from now
 
     def update(self, keys):
         self.update_animation()
@@ -118,7 +114,7 @@ class Player(pygame.sprite.Sprite):
         if self.ammo_boost_active and pygame.time.get_ticks() > self.ammo_boost_end_time:
             self.ammo_boost_active = False
 
-# Gegner Klasse
+# Enemy class
 class BaseEnemy(pygame.sprite.Sprite):
     def __init__(self, enemy_image, speed, *args, **kwargs):
         self.hitpoints = kwargs.pop('hitpoints', 1)  # Extract hitpoints and remove it from kwargs
@@ -217,7 +213,7 @@ class AdvancedEnemy(BaseEnemy):
         super().__init__(enemy_image=advanced_enemy_image, speed=ADVANCED_ENEMY_SPEED, hitpoints=ADVANCED_HITPOINTS, destroy_sound=ADVANCED_DESTROY_SOUND, score_value=ADVANCED_ENEMY_SCORE_VALUE, *args, **kwargs)
 
 
-# Burger Klasse
+# Burger class
 class Burger(pygame.sprite.Sprite):
     def __init__(self, x, y, burger_image, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -229,7 +225,7 @@ class Burger(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-# PowerUp Klasse
+# PowerUp class
 class PowerUp(pygame.sprite.Sprite):
     def __init__(self, power_up_type, x, y, power_up_images, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -245,7 +241,7 @@ class PowerUp(pygame.sprite.Sprite):
         if current_time - self.spawn_time > 4000:  # 4000 milliseconds = 4 seconds
             self.kill()
 
-#Blocker Klasse
+
 class Blocker(pygame.sprite.Sprite):
     def __init__(self, player_x, top, bottom, *args, **kwargs):
         super().__init__()
