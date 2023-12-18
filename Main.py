@@ -513,14 +513,8 @@ def main_game(player_name):
                 # Check for collision with enemies as usual
                 hit_enemies = pygame.sprite.spritecollide(burger, enemies, False, pygame.sprite.collide_mask)
                 for enemy in hit_enemies:
-                    if enemy.take_damage(BURGER_DAMAGE):  # Check if the enemy was destroyed
-                        try:
-                            player.score += enemy.score_value  # Update the player's money
-                        except Exception as e:
-                            exc_type, exc_obj, exc_tb = sys.exc_info()
-                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                            print(exc_type, fname, exc_tb.tb_lineno)
-                            running = False
+                    if enemy.take_damage(BURGER_DAMAGE, player.rect.center):  # Check if the enemy was destroyed
+                        player.score += enemy.score_value  # Update the player's money
                     burger.kill()
 
 
