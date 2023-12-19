@@ -473,7 +473,7 @@ def main_game(player_name):
             screen.blit(ammo_text, (10, 80))
 
             wave_text = font.render(f'Wave:  {current_wave}', True, BLACK)
-            screen.blit(wave_text, (900, 10))
+            screen.blit(wave_text, (890, 10))
 
             pygame.display.flip()
     except Exception as e:
