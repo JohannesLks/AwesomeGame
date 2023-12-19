@@ -578,6 +578,9 @@ def main_game(player_name):
         ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
         screen.blit(ammo_text, (10, 80))
 
+        wave_text = font.render(f'Wave:  {current_wave}', True, BLACK)
+        screen.blit(wave_text, (890, 10))
+
         pygame.display.flip()
 
 def game_intro():
