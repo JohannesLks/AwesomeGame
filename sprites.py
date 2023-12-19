@@ -73,10 +73,12 @@ class Player(pygame.sprite.Sprite):
         """
         Initialisiert ein Player-Objekt.
 
-        :param player_images: Eine Liste von Bildern für die Animation des Spielers.
-        :param speed: Die Geschwindigkeit des Spielers.
-        :param args: Positionale Argumente für die übergeordnete Klasse.
-        :param kwargs: Schlüsselwortargumente für die übergeordnete Klasse.
+        :param player_images: Eine Liste von Bildern für die Animation des Spielers. (list)
+        :type player_images: list
+        :param speed: Die Geschwindigkeit des Spielers. (int)
+        :type speed: int
+        :param args: Positionale Argumente für die übergeordnete Klasse. (*args)
+        :param kwargs: Schlüsselwortargumente für die übergeordnete Klasse. (**kwargs)
         """
         super().__init__(*args, **kwargs)
         self.animation_frames = player_images
@@ -258,9 +260,6 @@ class StandardEnemy(BaseEnemy):
 
     def __init__(self, enemy_image, speed, *args, **kwargs):
         super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, amplitude=1, frequency=0.07, *args, **kwargs)
-class StandardEnemy(BaseEnemy):
-    def __init__(self, enemy_image, speed, *args, **kwargs):
-        super().__init__(enemy_image=enemy_image, speed=STANDARD_ENEMY_SPEED, hitpoints=STANDARD_HITPOINTS, amplitude = 1, frequency = 0.07, *args, **kwargs)
 
 class AdvancedEnemy(BaseEnemy):
     """

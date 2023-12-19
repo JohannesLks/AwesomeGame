@@ -452,12 +452,6 @@ def init_game():
     Standardwerte zurück. Dadurch wird das Spiel in den Anfangszustand versetzt.
 
     Wird ausgelöst wenn im Game Over Bildschirm auf den "Neues Spiel" Button geklickt wird.
-
-    Parameters:
-        None
-
-    Returns:
-        None
     """
     global BLOCKER_COUNT, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, current_wave, in_between_waves, wave_start_time
     BLOCKER_COUNT = 0
@@ -473,9 +467,6 @@ def main_game(player_name):
 
     Args:
         player_name (str): Der Name des Spielers.
-
-    Returns:
-        None
     """
 def main_game(player_name):
     global current_wave, in_between_waves, wave_start_time, running
@@ -609,9 +600,6 @@ def next_wave(enemies, blocker_group):
     Args:
         enemies (pygame.sprite.Group): The group of enemies in the game.
         blocker_group (pygame.sprite.Group): The group of blockers in the game.
-
-    Returns:
-        None
     """
     global current_wave, in_between_waves, wave_start_time, STANDARD_ENEMY_SPAWN_RATE, ADVANCED_ENEMY_SPAWN_RATE, BLOCKER_COUNT
     current_wave += 1
@@ -631,9 +619,6 @@ def display_wave_message(screen: pygame.Surface, message: str) -> None:
     Args:
         screen (pygame.Surface): Die Oberfläche (Surface) des Bildschirms, auf dem die Meldung angezeigt werden soll.
         message (str): Die Nachricht, die angezeigt werden soll.
-
-    Returns:
-        None
     """
     
     overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
