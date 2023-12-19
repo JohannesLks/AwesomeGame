@@ -439,11 +439,7 @@ def game_over_screen(screen, score, player_name):
                 highscore_rect = highscore_surf.get_rect(center=(SCREEN_WIDTH // 2, 150 + i * 50))
                 screen.blit(highscore_surf, highscore_rect)
             pygame.display.flip()
-    except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
-        running = False
+
 
 
 def init_game():
