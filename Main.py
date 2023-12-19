@@ -220,17 +220,12 @@ def regenerate_ammo(player):
 
 def load_highscores(filename='highscores.csv'):
     highscores = []
-    try:
-        with open(filename, 'r', newline='') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if len(row) == 3:  
-                    highscores.append(row)
-            highscores.sort(key=lambda x: int(x[1]), reverse=True)
-    except FileNotFoundError:
-        with open(filename, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Name', 'Score', 'Date'])
+    with open(filename, 'r', newline='') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) == 3:  
+                highscores.append(row)
+        highscores.sort(key=lambda x: int(x[1]), reverse=True)
     return highscores
 
 def save_highscore(name, score, filename='highscores.csv'):
@@ -299,59 +294,65 @@ def start_screen(screen):
     return name
 
 def game_over_screen(screen, score, player_name):
-    big_font = pygame.font.Font(adventure_font_path, 80)
-    regular_font = pygame.font.Font(adventure_font_path, 36)
-    save_highscore(player_name, score)
-    highscores = load_highscores()
+    try:
+        big_font = pygame.font.Font(adventure_font_path, 80)
+        regular_font = pygame.font.Font(adventure_font_path, 36)
+        save_highscore(player_name, score)
+        highscores = load_highscores()
 
-    start_button_x = SCREEN_WIDTH // 2 - start_button_img.get_width() // 2
-    start_button_y = SCREEN_HEIGHT - start_button_img.get_height() - 50
-    start_button_rect = pygame.Rect(start_button_x, start_button_y, start_button_img.get_width(), start_button_img.get_height())
+        start_button_x = SCREEN_WIDTH // 2 - start_button_img.get_width() // 2
+        start_button_y = SCREEN_HEIGHT - start_button_img.get_height() - 50
+        start_button_rect = pygame.Rect(start_button_x, start_button_y, start_button_img.get_width(), start_button_img.get_height())
 
-    running = True
-    pygame.mixer.music.stop()
-    game_over.play()
-    pygame.mixer.music.load(game_over_music)
-    pygame.mixer.music.play(-1)
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button_rect.collidepoint(event.pos):
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.load(BACKGROUND_MUSIC)
-                    pygame.mixer.music.play(-1)
-                    init_game()
-                    main_game(player_name)
+        running = True
+        pygame.mixer.music.stop()
+        game_over.play()
+        pygame.mixer.music.load(game_over_music)
+        pygame.mixer.music.play(-1)
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if start_button_rect.collidepoint(event.pos):
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load(BACKGROUND_MUSIC)
+                        pygame.mixer.music.play(-1)
+                        init_game()
+                        main_game(player_name)
+                        running = False
 
-        screen.blit(game_over_img, (0, 0))
+            screen.blit(game_over_img, (0, 0))
 
-        mouse_pos = pygame.mouse.get_pos()
-        if start_button_rect.collidepoint(mouse_pos):
-            screen.blit(start_button_hover_img, start_button_rect.topleft)
-        else:
-            screen.blit(start_button_img, start_button_rect.topleft)
+            mouse_pos = pygame.mouse.get_pos()
+            if start_button_rect.collidepoint(mouse_pos):
+                screen.blit(start_button_hover_img, start_button_rect.topleft)
+            else:
+                screen.blit(start_button_img, start_button_rect.topleft)
 
-        text_surf = FONT.render('New Game', True, WHITE)
-        text_rect = text_surf.get_rect(center=start_button_rect.center)
-        screen.blit(text_surf, text_rect)
+            text_surf = FONT.render('New Game', True, WHITE)
+            text_rect = text_surf.get_rect(center=start_button_rect.center)
+            screen.blit(text_surf, text_rect)
 
-        title_surf = big_font.render('Game Over', True, WHITE)
-        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 50))
-        screen.blit(title_surf, title_rect)
+            title_surf = big_font.render('Game Over', True, WHITE)
+            title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 50))
+            screen.blit(title_surf, title_rect)
 
-        score_surf = regular_font.render(f'Money $: {score}', True, RED)
-        score_rect = score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150))
-        screen.blit(score_surf, score_rect)
+            score_surf = regular_font.render(f'Money $: {score}', True, RED)
+            score_rect = score_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150))
+            screen.blit(score_surf, score_rect)
 
-        for i, highscore in enumerate(highscores[:5]):
-            highscore_text = f"{i + 1}. {highscore[0]} - {highscore[1]}"
-            highscore_surf = regular_font.render(highscore_text, True, WHITE)
-            highscore_rect = highscore_surf.get_rect(center=(SCREEN_WIDTH // 2, 150 + i * 50))
-            screen.blit(highscore_surf, highscore_rect)
-        pygame.display.flip()
+            for i, highscore in enumerate(highscores[:5]):
+                highscore_text = f"{i + 1}. {highscore[0]} - {highscore[1]}"
+                highscore_surf = regular_font.render(highscore_text, True, WHITE)
+                highscore_rect = highscore_surf.get_rect(center=(SCREEN_WIDTH // 2, 150 + i * 50))
+                screen.blit(highscore_surf, highscore_rect)
+            pygame.display.flip()
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        running = False
 
 
 def init_game():
@@ -470,6 +471,9 @@ def main_game(player_name):
         
             ammo_text = font.render(f'Burger: {player.ammo}', True, BLUE)
             screen.blit(ammo_text, (10, 80))
+
+            wave_text = font.render(f'Wave:  {current_wave}', True, BLACK)
+            screen.blit(wave_text, (890, 10))
 
             pygame.display.flip()
     except Exception as e:
