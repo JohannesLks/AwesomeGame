@@ -67,7 +67,8 @@ def handle_input_events(event, input_text, input_box_active, input_box_rect):
         input_box_rect (pygame.Rect): Das Rechteck, das das Eingabefeld umgibt.
 
     Returns:
-        tuple: Ein Tupel, das den aktualisierten Text im Eingabefeld und den Status des Eingabefelds enthält.
+        input_text (str): Der aktualisierte Text im Eingabefeld.
+        input_box_active (bool): Gibt an, ob das Eingabefeld aktiv ist oder nicht.
     """
     if event.type == pygame.MOUSEBUTTONDOWN:
         if input_box_rect.collidepoint(event.pos):
@@ -101,7 +102,8 @@ def create_button(screen, image, image_hover, x, y, text='', text_color=BLACK, f
         font_path (str, optional): Der Pfad zur Schriftartdatei. Standardmäßig ist die Schriftart None.
 
     Returns:
-        tuple: Ein Tupel, das das Rechteck des Buttons und einen Wert enthält, der angibt, ob der Button geklickt wurde.
+        button_rect (pygame.Rect): Das Rechteck, das den Button umgibt.
+        clicked (bool): Gibt an, ob der Button angeklickt wurde oder nicht.
     """
     button_rect = image.get_rect(topleft=(x, y))
     mouse = pygame.mouse.get_pos()
@@ -129,7 +131,8 @@ def text_objects(text, font):
         font (pygame.font.Font): Die Schriftart, die für den Text verwendet werden soll.
 
     Returns:
-        tuple: Ein Tupel bestehend aus dem Textoberfläche-Objekt und dem Rechteck-Objekt, das den Text umgibt.
+        text_surface (pygame.Surface): Die Oberfläche, auf der der Text gerendert wird.
+        text_surface.get_rect() (pygame.Rect): Das Rechteck, das den Text umgibt.
     """
     text_surface = font.render(text, True, BLACK)
     return text_surface, text_surface.get_rect()
@@ -142,7 +145,7 @@ def show_start_screen(screen):
         screen (pygame.Surface): Die Oberfläche, auf der der Startbildschirm angezeigt wird.
 
     Returns:
-        str: Der vom Benutzer eingegebene Text im Eingabefeld.
+        input_text (str): Der Name des Spielers, der eingegeben wurde.
     """
     global running
     button_y = SCREEN_HEIGHT - BUTTON_HEIGHT - LOWER_OFFSET
