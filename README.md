@@ -3,6 +3,7 @@
 ## Description
 "Krabs' Burger-Battle: Die Geldfischjagd" is an engaging arcade-style game where players control Mr. Krabs in his quest to capture money fishes while avoiding obstacles and enemies like the nefarious Plankton. With each wave, the challenge increases, and players must skillfully manage their ammo and collect power-ups to survive the Geldfischjagd (money fish hunt).
 
+![alt text](https://github.com/JohannesLks/AwesomeGame/blob/main/media/loading_screen.png)
 ## Installation
 
 ### Prerequisites
